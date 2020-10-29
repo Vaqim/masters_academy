@@ -3,10 +3,11 @@ const priceList = require('../input_array.json');
 
 function boot(inputArray, param, value) {
   const filtered = filterFunc(inputArray, param, value);
-  const formatted = formaterFunc(filtered);
-
   console.log(filtered);
+
+  const formatted = formaterFunc(filtered);
   console.log(formatted);
+
   console.log(maxCost);
 }
 
