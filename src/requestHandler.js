@@ -1,5 +1,6 @@
 const { parse: parseQuery } = require('querystring');
 const { URL } = require('url');
+const router = require('./router');
 
 module.exports = (req, res) => {
   try {
@@ -18,6 +19,16 @@ module.exports = (req, res) => {
       })
       .on('end', () => {
         body = Buffer.concat(body).toString();
+        router(
+          {
+            ...res,
+            body: body ? JSON.parse(body) : {},
+            url,
+            queryParams,
+            method,
+          },
+          res,
+        );
       });
   } catch (error) {
     console.log(error);
