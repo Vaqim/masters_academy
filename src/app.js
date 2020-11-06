@@ -1,14 +1,8 @@
-const { first: filterFunc, second: maxCost, third: formaterFunc } = require('./task');
-const priceList = require('../input_array.json');
+require('dotenv').config();
+const http = require('http');
+const requestHandler = require('./requestHandler');
 
-function boot(inputArray, param, value) {
-  const filtered = filterFunc(inputArray, param, value);
-  console.log(filtered);
-
-  const formatted = formaterFunc(filtered);
-  console.log(formatted);
-
-  console.log(maxCost);
-}
-
-boot(priceList, 'type', 'socks');
+const server = http.createServer(requestHandler);
+server.listen(process.env.PORT, () => {
+  console.log(`Listening in port ${process.env.PORT}`);
+});
