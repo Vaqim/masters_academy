@@ -2,11 +2,11 @@
 
 GET http://localhost:3000/
 ###
-
-# root 
-
-GET http://localhost:3000/task1
-
+GET http://localhost:3000/filter
+###
+GET http://localhost:3000/format
+###
+GET http://localhost:3000/maxcost
 ###
 
 # post
