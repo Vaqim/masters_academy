@@ -4,7 +4,7 @@ const router = require('./router');
 
 module.exports = (req, res) => {
   try {
-    const { url, method } = req;
+    const { url } = req;
     const parsedUrl = new URL(url, process.env.ORIGIN);
     const queryParams = parseQuery(parsedUrl.search.slice(1));
 
@@ -21,11 +21,10 @@ module.exports = (req, res) => {
         body = Buffer.concat(body).toString();
         router(
           {
-            ...res,
+            ...req,
             body: body ? JSON.parse(body) : {},
             url,
             queryParams,
-            method,
           },
           res,
         );
