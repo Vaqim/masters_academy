@@ -32,13 +32,12 @@ function getFormatter(res) {
 }
 
 function notFound(res) {
-  res.setHeader('Content-Type', 'application/json');
   res.statusCode = 404;
   res.write('404 Not Found');
   res.end();
 }
 
-function getResetSource(res) {
+function getSwitchSource(res) {
   defaultSource = !defaultSource;
   res.end(`source reseted to ${defaultSource ? 'JSON' : 'store'}`);
 }
@@ -64,7 +63,7 @@ module.exports = {
   getMaxCost,
   getFormatter,
   notFound,
-  getResetSource,
+  getSwitchSource,
   getShowData,
   postEdit,
 };

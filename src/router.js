@@ -3,7 +3,7 @@ const {
   getMaxCost,
   getFormatter,
   notFound,
-  getResetSource,
+  getSwitchSource,
   getShowData,
   postEdit,
 } = require('./controller');
@@ -26,7 +26,7 @@ module.exports = (req, res) => {
         getFormatter(res);
         break;
       case '/resetsource':
-        getResetSource(res);
+        getSwitchSource(res);
         break;
       default:
         notFound(res);
