@@ -7,6 +7,7 @@ module.exports = (req, res) => {
     const { url } = req;
     const parsedUrl = new URL(url, process.env.ORIGIN);
     const queryParams = parseQuery(parsedUrl.search.slice(1));
+    const path = parsedUrl.pathname;
 
     let body = [];
 
@@ -23,8 +24,8 @@ module.exports = (req, res) => {
           {
             ...req,
             body: body ? JSON.parse(body) : {},
-            url,
             queryParams,
+            path,
           },
           res,
         );

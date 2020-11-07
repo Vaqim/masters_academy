@@ -1,17 +1,20 @@
-const { getFilter, getMaxCost, getFormatter, notFound } = require('./controller');
+const {
+  getFilter,
+  getMaxCost,
+  getFormatter,
+  notFound,
+  getResetSource,
+  getShowData,
+  postEdit,
+} = require('./controller');
 
 module.exports = (req, res) => {
-  const { url, method, queryParams, body: data } = req;
-
-  console.log(data);
-  console.log(queryParams);
-  console.log(url);
+  const { path, method, queryParams, body: data } = req;
 
   if (method === 'GET') {
-    switch (url) {
+    switch (path) {
       case '/':
-        console.log('Home');
-        res.end();
+        getShowData(res);
         break;
       case '/filter':
         getFilter(res, queryParams);
@@ -22,21 +25,18 @@ module.exports = (req, res) => {
       case '/format':
         getFormatter(res);
         break;
+      case '/resetsource':
+        getResetSource(res);
+        break;
       default:
         notFound(res);
     }
   }
 
   if (method === 'POST') {
-    switch (url) {
-      case '/filter':
-        console.log('filter function');
-        break;
-      case '/maxCost':
-        console.log('maxCost function');
-        break;
-      case '/formatter':
-        console.log('formatter function');
+    switch (path) {
+      case '/edit':
+        postEdit(res, data);
         break;
       default:
         notFound(res);
