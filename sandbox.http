@@ -2,7 +2,7 @@
 
 GET http://localhost:3000/
 ###
-GET http://localhost:3000/filter
+GET http://localhost:3000/filter?field=type&value=socks
 ###
 GET http://localhost:3000/format
 ###
