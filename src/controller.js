@@ -21,7 +21,7 @@ function getFilter(res, queryParams) {
 function getMaxCost(res) {
   const maxPrice = maxCost(getSource());
   res.end(
-    `The most expansive in ${defaultSource ? 'JSON' : 'store'} data: ${JSON.stringify(maxPrice)}`,
+    `The most expensive in ${defaultSource ? 'JSON' : 'store'} data: ${JSON.stringify(maxPrice)}`,
   );
 }
 
@@ -39,7 +39,7 @@ function notFound(res) {
 
 function getSwitchSource(res) {
   defaultSource = !defaultSource;
-  res.end(`source reseted to ${defaultSource ? 'JSON' : 'store'}`);
+  res.end(`source switched to ${defaultSource ? 'JSON' : 'store'}`);
 }
 
 function getShowData(res) {
