@@ -10,9 +10,17 @@ function getSource() {
   return defaultSource ? inputArray : store;
 }
 
+function isEmpty(source) {
+  return Object.keys(source).length === 0 || source.length === 0;
+}
+
 function getFilter(res, queryParams) {
   if (Object.keys(queryParams).length === 0) {
     res.end('on query');
+    return;
+  }
+  if (isEmpty(getSource())) {
+    res.end('nothing to filter');
     return;
   }
   const [key, value] = Object.entries(queryParams).flat();
@@ -23,6 +31,10 @@ function getFilter(res, queryParams) {
 }
 
 function getMaxCost(res) {
+  if (isEmpty(getSource())) {
+    res.end(`${defaultSource ? 'JSON' : 'store'} is empty`);
+    return;
+  }
   const maxPrice = maxCost(getSource());
   res.end(
     `The most expensive in ${defaultSource ? 'JSON' : 'store'} data: ${JSON.stringify(maxPrice)}`,
@@ -30,6 +42,10 @@ function getMaxCost(res) {
 }
 
 function getFormatter(res) {
+  if (isEmpty(getSource())) {
+    res.end('nothing to format');
+    return;
+  }
   const formatted = formatter(getSource());
   res.write(`formatted ${defaultSource ? 'JSON' : 'store'} data: `);
   res.end(JSON.stringify(formatted));
