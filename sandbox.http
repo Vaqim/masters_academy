@@ -8,7 +8,7 @@ GET http://localhost:3000/format
 ###
 GET http://localhost:3000/maxcost
 ###
-GET http://localhost:3000/resetsource
+POST http://localhost:3000/switchsource
 ###
 
 # post

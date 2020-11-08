@@ -3,7 +3,7 @@ const {
   getMaxCost,
   getFormatter,
   notFound,
-  getSwitchSource,
+  postSwitchSource,
   getShowData,
   postEdit,
 } = require('./controller');
@@ -25,9 +25,6 @@ module.exports = (req, res) => {
       case '/format':
         getFormatter(res);
         break;
-      case '/resetsource':
-        getSwitchSource(res);
-        break;
       default:
         notFound(res);
     }
@@ -35,6 +32,9 @@ module.exports = (req, res) => {
     switch (path) {
       case '/edit':
         postEdit(res, data);
+        break;
+      case '/switchsource':
+        postSwitchSource(res, data);
         break;
       default:
         notFound(res);

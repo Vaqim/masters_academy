@@ -60,7 +60,7 @@ function notFound(res) {
   res.end('404 Not Found');
 }
 
-function getSwitchSource(res) {
+function postSwitchSource(res) {
   defaultSource = !defaultSource;
   res.end(`source switched to ${defaultSource ? 'JSON' : 'store'}`);
 }
@@ -90,7 +90,7 @@ module.exports = {
   getMaxCost,
   getFormatter,
   notFound,
-  getSwitchSource,
+  postSwitchSource,
   getShowData,
   postEdit,
 };
