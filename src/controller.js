@@ -28,7 +28,7 @@ function getFilter(res, queryParams) {
   const [key, value] = Object.entries(queryParams).flat();
   const filtered = filter(getSource(), key, value);
 
-  res.write('filtered data');
+  res.write('filtered data:\n');
   res.end(JSON.stringify(filtered));
 }
 
@@ -40,7 +40,7 @@ function getMaxCost(res) {
   }
   const maxPrice = maxCost(getSource());
   res.end(
-    `The most expensive in ${defaultSource ? 'JSON' : 'store'} data: ${JSON.stringify(maxPrice)}`,
+    `The most expensive in ${defaultSource ? 'JSON' : 'store'} data: \n${JSON.stringify(maxPrice)}`,
   );
 }
 
@@ -51,14 +51,13 @@ function getFormatter(res) {
     return;
   }
   const formatted = formatter(getSource());
-  res.write(`formatted ${defaultSource ? 'JSON' : 'store'} data: `);
+  res.write(`formatted ${defaultSource ? 'JSON' : 'store'} data: \n`);
   res.end(JSON.stringify(formatted));
 }
 
 function notFound(res) {
   res.statusCode = 404;
-  res.write('404 Not Found');
-  res.end();
+  res.end('404 Not Found');
 }
 
 function getSwitchSource(res) {
@@ -83,8 +82,7 @@ function postEdit(res, data) {
     fs.writeFileSync(path.resolve(`${__dirname}../../`, 'input_array.json'), JSON.stringify(data));
   }
   res.write(`new data in ${defaultSource ? 'JSON' : 'store'}\n`);
-  res.write(JSON.stringify(getSource()));
-  res.end();
+  res.end(JSON.stringify(getSource()));
 }
 
 module.exports = {
