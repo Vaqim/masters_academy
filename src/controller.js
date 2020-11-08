@@ -71,7 +71,7 @@ function getShowData(res) {
 }
 
 function postEdit(res, data) {
-  if (Object.keys(data).length === 0 || data.length === 0) {
+  if (Object.keys(data).length === 0 || !Array.isArray(data) || data.length === 0) {
     res.statusCode = 400;
     res.end('nothing to add');
     return;
