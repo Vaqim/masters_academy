@@ -21,6 +21,7 @@ function getFilter(res, queryParams) {
     return;
   }
   if (isEmpty(getSource())) {
+    res.statusCode = 204;
     res.end('nothing to filter');
     return;
   }
@@ -33,6 +34,7 @@ function getFilter(res, queryParams) {
 
 function getMaxCost(res) {
   if (isEmpty(getSource())) {
+    res.statusCode = 204;
     res.end(`${defaultSource ? 'JSON' : 'store'} is empty`);
     return;
   }
@@ -44,6 +46,7 @@ function getMaxCost(res) {
 
 function getFormatter(res) {
   if (isEmpty(getSource())) {
+    res.statusCode = 204;
     res.end('nothing to format');
     return;
   }
