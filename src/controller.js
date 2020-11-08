@@ -16,6 +16,7 @@ function isEmpty(source) {
 
 function getFilter(res, queryParams) {
   if (Object.keys(queryParams).length === 0) {
+    res.statusCode = 400;
     res.end('on query');
     return;
   }
@@ -69,6 +70,7 @@ function getShowData(res) {
 
 function postEdit(res, data) {
   if (Object.keys(data).length === 0 || data.length === 0) {
+    res.statusCode = 400;
     res.end('nothing to add');
     return;
   }
