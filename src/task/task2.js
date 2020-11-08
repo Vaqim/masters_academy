@@ -1,5 +1,3 @@
-const arr = require('../../input_array.json');
-
 function secondTask(inputArray) {
   let maxCost = 0;
   let mostExpansive;
@@ -13,4 +11,4 @@ function secondTask(inputArray) {
   return mostExpansive;
 }
 
-module.exports = secondTask(arr);
+module.exports = secondTask;
