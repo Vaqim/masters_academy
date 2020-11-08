@@ -48,6 +48,10 @@ function getShowData(res) {
 }
 
 function postEdit(res, data) {
+  if (Object.keys(data).length === 0 || data.length === 0) {
+    res.end('nothing to add');
+    return;
+  }
   if (!defaultSource) {
     store = data;
   } else {
