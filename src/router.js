@@ -34,7 +34,7 @@ module.exports = (req, res) => {
         postEdit(res, data);
         break;
       case '/switchsource':
-        postSwitchSource(res, data);
+        postSwitchSource(res);
         break;
       default:
         notFound(res);
