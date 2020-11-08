@@ -11,6 +11,10 @@ function getSource() {
 }
 
 function getFilter(res, queryParams) {
+  if (Object.keys(queryParams).length === 0) {
+    res.end('on query');
+    return;
+  }
   const [key, value] = Object.entries(queryParams).flat();
   const filtered = filter(getSource(), key, value);
 
