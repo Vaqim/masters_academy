@@ -31,9 +31,7 @@ module.exports = (req, res) => {
       default:
         notFound(res);
     }
-  }
-
-  if (method === 'POST') {
+  } else if (method === 'POST') {
     switch (path) {
       case '/edit':
         postEdit(res, data);
@@ -41,5 +39,7 @@ module.exports = (req, res) => {
       default:
         notFound(res);
     }
+  } else {
+    notFound(res);
   }
 };
