@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { first: filter, second: maxCost, third: formatter } = require('./task');
+const { isEmpty, getRandomInt } = require('./utils');
 const inputArray = require('../input_array.json');
 
 let store = [];
@@ -8,10 +9,6 @@ let defaultSource = true;
 
 function getSource() {
   return defaultSource ? inputArray : store;
-}
-
-function isEmpty(source) {
-  return Object.keys(source).length === 0 || source.length === 0;
 }
 
 function getFilter(res, queryParams) {
@@ -85,6 +82,14 @@ function postEdit(res, data) {
   res.end(JSON.stringify(getSource()));
 }
 
+function getSale(callback) {
+  const sale = getRandomInt(99);
+  setTimeout(() => {
+    if (sale >= 20) throw new Error('sale is greater then 20');
+    callback(sale);
+  }, 50);
+}
+
 module.exports = {
   getFilter,
   getMaxCost,
@@ -93,4 +98,5 @@ module.exports = {
   postSwitchSource,
   getShowData,
   postEdit,
+  getSale,
 };
