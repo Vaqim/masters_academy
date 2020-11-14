@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
 const { first: filter, second: maxCost, third: formatter } = require('./task');
-const { isEmpty, getRandomInt } = require('./utils');
+const { isEmpty, repeatPromiseUntilResolve, saleCallback, salePromise } = require('./utils');
 const inputArray = require('../input_array.json');
 
 let store = [];
@@ -82,12 +83,38 @@ function postEdit(res, data) {
   res.end(JSON.stringify(getSource()));
 }
 
-function getSale(callback) {
-  const sale = getRandomInt(99);
-  setTimeout(() => {
-    if (sale >= 20) throw new Error('sale is greater then 20');
-    callback(sale);
-  }, 50);
+const SalePromisify = util.promisify(saleCallback);
+
+function getSaleCallback() {
+  const data = getSource();
+  const result = data.myMap((product) => {
+    let sale;
+    saleCallback((err, value) => {
+      if (err) {
+        console.log('err', err.message);
+        return err;
+      }
+      sale = value;
+      return value;
+    });
+    product.sale = sale;
+    return product;
+  });
+  console.log(result);
+}
+
+function getSalePromise() {
+  let data = getSource();
+  data = data.myMap((product) => {
+    return repeatPromiseUntilResolve(salePromise).then((sale) => {
+      product.sale = sale;
+      return product;
+    });
+  });
+
+  Promise.all(data).then((result) => {
+    console.log(result);
+  });
 }
 
 module.exports = {
@@ -98,5 +125,6 @@ module.exports = {
   postSwitchSource,
   getShowData,
   postEdit,
-  getSale,
+  getSaleCallback,
+  getSalePromise,
 };

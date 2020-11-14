@@ -6,6 +6,8 @@ const {
   postSwitchSource,
   getShowData,
   postEdit,
+  getSaleCallback,
+  getSalePromise,
 } = require('./controller');
 
 module.exports = (req, res) => {
@@ -24,6 +26,12 @@ module.exports = (req, res) => {
         break;
       case '/format':
         getFormatter(res);
+        break;
+      case '/getsalecallback':
+        getSaleCallback();
+        break;
+      case '/getsalepromise':
+        getSalePromise();
         break;
       default:
         notFound(res);
