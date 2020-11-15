@@ -8,6 +8,7 @@ const {
   postEdit,
   getSaleCallback,
   getSalePromise,
+  getSaleAsync,
 } = require('./controller');
 
 module.exports = (req, res) => {
@@ -29,9 +30,13 @@ module.exports = (req, res) => {
         break;
       case '/getsalecallback':
         getSaleCallback();
+        res.end();
         break;
       case '/getsalepromise':
-        getSalePromise();
+        getSalePromise(res);
+        break;
+      case '/getsaleasync':
+        getSaleAsync(res);
         break;
       default:
         notFound(res);

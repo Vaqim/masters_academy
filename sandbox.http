@@ -12,6 +12,8 @@ GET http://localhost:3000/getsalecallback
 ###
 GET http://localhost:3000/getsalepromise
 ###
+GET http://localhost:3000/getsaleasync
+###
 POST http://localhost:3000/switchsource
 ###
 

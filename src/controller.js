@@ -6,7 +6,7 @@ const { isEmpty, repeatPromiseUntilResolve, saleCallback, salePromise } = requir
 const inputArray = require('../input_array.json');
 
 let store = [];
-let defaultSource = true;
+let defaultSource = false;
 
 function getSource() {
   return defaultSource ? inputArray : store;
@@ -83,7 +83,7 @@ function postEdit(res, data) {
   res.end(JSON.stringify(getSource()));
 }
 
-const SalePromisify = util.promisify(saleCallback);
+const salePromisify = util.promisify(saleCallback);
 
 function getSaleCallback() {
   const data = getSource();
@@ -103,8 +103,9 @@ function getSaleCallback() {
   console.log(result);
 }
 
-function getSalePromise() {
+function getSalePromise(res) {
   let data = getSource();
+
   data = data.myMap((product) => {
     return repeatPromiseUntilResolve(salePromise).then((sale) => {
       product.sale = sale;
@@ -114,7 +115,20 @@ function getSalePromise() {
 
   Promise.all(data).then((result) => {
     console.log(result);
+    res.end();
   });
+}
+
+async function getSaleAsync(res) {
+  let data = getSource();
+  data = data.myMap(async (product) => {
+    const sale = await repeatPromiseUntilResolve(salePromisify);
+    product.sale = sale;
+    return product;
+  });
+  data = await Promise.all(data);
+  console.log(data);
+  res.end();
 }
 
 module.exports = {
@@ -127,4 +141,5 @@ module.exports = {
   postEdit,
   getSaleCallback,
   getSalePromise,
+  getSaleAsync,
 };
