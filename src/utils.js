@@ -8,35 +8,36 @@ function generateSale() {
   return sale;
 }
 
-function repeatPromiseUntilResolve(fn) {
-  return fn()
-    .then((res) => res)
-    .catch(() => {
-      repeatPromiseUntilResolve(fn);
-    });
-}
-
-function saleCallback(callback) {
+function discountCallback(callback, prod) {
   setTimeout(() => {
     try {
-      const sale = generateSale();
-      callback(null, sale);
-    } catch (error) {
-      callback(error);
+      callback(null, generateSale(), prod);
+    } catch (e) {
+      callback(e, null, prod);
     }
   }, 50);
 }
 
-function salePromise() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      try {
-        resolve(generateSale());
-      } catch (error) {
-        reject(error);
-      }
-    }, 50);
+function discountPromise() {
+  return new Promise((reject, resolve) => {
+    try {
+      resolve(generateSale());
+    } catch (error) {
+      reject(error.message);
+    }
   });
+}
+
+function amountOfDiscounts(prod) {
+  const { type, color } = prod;
+  switch (true) {
+    case type === 'hat' && color === 'red':
+      return 3;
+    case type === 'hat':
+      return 2;
+    default:
+      return 1;
+  }
 }
 
 Array.prototype.myMap = function (callback) {
@@ -47,4 +48,9 @@ Array.prototype.myMap = function (callback) {
   return result;
 };
 
-module.exports = { isEmpty, repeatPromiseUntilResolve, saleCallback, salePromise };
+module.exports = {
+  isEmpty,
+  discountCallback,
+  discountPromise,
+  amountOfDiscounts,
+};

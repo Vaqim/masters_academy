@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const { first: filter, second: maxCost, third: formatter } = require('./task');
-const { isEmpty, discountCallback, amountsOfDiscounts } = require('./utils');
+const { isEmpty, discountCallback, amountOfDiscounts } = require('./utils');
 const inputArray = require('../input_array.json');
 
 let store = [
@@ -118,7 +118,7 @@ function getDiscountCallback(res) {
     if (Array.isArray(product.discount)) product.discount.push(value);
     else product.discount = [value];
 
-    amount = amountsOfDiscounts(product);
+    amount = amountOfDiscounts(product);
 
     if (Array.isArray(product.discount) && product.discount.length < amount) {
       discountCallback(callback, product);
