@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const util = require('util');
 const { first: filter, second: maxCost, third: formatter } = require('./task');
 const {
   isEmpty,
