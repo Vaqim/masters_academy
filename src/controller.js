@@ -2,10 +2,24 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const { first: filter, second: maxCost, third: formatter } = require('./task');
-const { isEmpty, repeatPromiseUntilResolve, saleCallback, salePromise } = require('./utils');
+const { isEmpty, discountCallback, amountsOfDiscounts } = require('./utils');
 const inputArray = require('../input_array.json');
 
-let store = [];
+let store = [
+  { type: 'socks', color: 'red', quantity: 10, priceForPair: '$3' },
+  { type: 'socks', color: 'green', quantity: 5, priceForPair: '$10' },
+  { type: 'socks', color: 'blue', quantity: 8, priceForPair: '$6' },
+  { type: 'hat', color: 'red', quantity: 7, price: '$5' },
+  { type: 'hat', color: 'blue', quantity: 0, price: '$6' },
+  { type: 'socks', color: 'blue', priceForPair: '$6' },
+  { type: 'socks', color: 'green', quantity: 10, priceForPair: '$30' },
+  { type: 'socks', color: 'white', quantity: 3, priceForPair: '$4' },
+  { type: 'socks', color: 'blue', priceForPair: '$10' },
+  { type: 'socks', color: 'green', quantity: 2, priceForPair: '$6' },
+  { type: 'hat', color: 'blue', quantity: 3, price: '$5' },
+  { type: 'hat', color: 'red', quantity: 1, price: '$6' },
+  { type: 'socks', color: 'blue', priceForPair: '$6' },
+];
 let defaultSource = false;
 
 function getSource() {
@@ -64,6 +78,7 @@ function postSwitchSource(res) {
 }
 
 function getShowData(res) {
+  console.log(getSource());
   res.write(`current data source ${defaultSource ? 'JSON' : 'store'}\n`);
   res.end(JSON.stringify(getSource()));
 }
@@ -83,52 +98,41 @@ function postEdit(res, data) {
   res.end(JSON.stringify(getSource()));
 }
 
-const salePromisify = util.promisify(saleCallback);
-
-function getSaleCallback() {
+function getDiscountCallback(res) {
   const data = getSource();
-  const result = data.myMap((product) => {
-    let sale;
-    saleCallback((err, value) => {
-      if (err) {
-        console.log('err', err.message);
-        return err;
-      }
-      sale = value;
-      return value;
-    });
-    product.sale = sale;
-    return product;
-  });
-  console.log(result);
-}
+  const newData = [];
+  let amount;
 
-function getSalePromise(res) {
-  let data = getSource();
-
-  data = data.myMap((product) => {
-    return repeatPromiseUntilResolve(salePromise).then((sale) => {
-      product.sale = sale;
-      return product;
-    });
+  data.forEach((product) => {
+    discountCallback(callback, product);
   });
 
-  Promise.all(data).then((result) => {
-    console.log(result);
+  function callback(err, value, product) {
+    if (err) {
+      return discountCallback(callback, product);
+    }
+    callback2(value, product);
+  }
+
+  function callback2(value, product) {
+    if (Array.isArray(product.discount)) product.discount.push(value);
+    else product.discount = [value];
+
+    amount = amountsOfDiscounts(product);
+
+    if (Array.isArray(product.discount) && product.discount.length < amount) {
+      discountCallback(callback, product);
+    } else {
+      newData.push(product);
+      callback3(product);
+    }
+  }
+
+  function callback3() {
+    if (newData.length !== data.length) return;
+    console.log(newData);
     res.end();
-  });
-}
-
-async function getSaleAsync(res) {
-  let data = getSource();
-  data = data.myMap(async (product) => {
-    const sale = await repeatPromiseUntilResolve(salePromisify);
-    product.sale = sale;
-    return product;
-  });
-  data = await Promise.all(data);
-  console.log(data);
-  res.end();
+  }
 }
 
 module.exports = {
@@ -139,7 +143,5 @@ module.exports = {
   postSwitchSource,
   getShowData,
   postEdit,
-  getSaleCallback,
-  getSalePromise,
-  getSaleAsync,
+  getDiscountCallback,
 };
