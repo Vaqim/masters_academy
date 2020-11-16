@@ -1,3 +1,5 @@
+const util = require('util');
+
 function isEmpty(source) {
   return Object.keys(source).length === 0 || source.length === 0;
 }
@@ -19,13 +21,21 @@ function discountCallback(callback, prod) {
 }
 
 function discountPromise() {
-  return new Promise((reject, resolve) => {
-    try {
-      resolve(generateSale());
-    } catch (error) {
-      reject(error.message);
-    }
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      try {
+        resolve(generateSale());
+      } catch (error) {
+        reject(error.message);
+      }
+    }, 50);
   });
+}
+
+function repeatPromiseUntilResolve(fn) {
+  return fn()
+    .then((res) => res)
+    .catch(() => repeatPromiseUntilResolve(fn));
 }
 
 function amountOfDiscounts(prod) {
@@ -40,8 +50,11 @@ function amountOfDiscounts(prod) {
   }
 }
 
+const discountPromisify = util.promisify(discountCallback);
+
+// eslint-disable-next-line no-extend-native
 Array.prototype.myMap = function (callback) {
-  let result = [];
+  const result = [];
   for (let i = 0; i < this.length; i++) {
     result.push(callback(this[i], i, this));
   }
@@ -53,4 +66,6 @@ module.exports = {
   discountCallback,
   discountPromise,
   amountOfDiscounts,
+  repeatPromiseUntilResolve,
+  discountPromisify,
 };

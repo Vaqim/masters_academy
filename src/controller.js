@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const { first: filter, second: maxCost, third: formatter } = require('./task');
-const { isEmpty, discountCallback, amountOfDiscounts } = require('./utils');
+const {
+  isEmpty,
+  discountCallback,
+  amountOfDiscounts,
+  discountPromise,
+  repeatPromiseUntilResolve,
+  discountPromisify,
+} = require('./utils');
 const inputArray = require('../input_array.json');
 
 let store = [
@@ -123,6 +130,10 @@ function getDiscountCallback(res) {
     if (Array.isArray(product.discount) && product.discount.length < amount) {
       discountCallback(callback, product);
     } else {
+      product.discount = +product.discount
+        .map((discount) => (100 - discount) / 100)
+        .reduce((acc, red) => acc * red)
+        .toFixed(2);
       newData.push(product);
       callback3(product);
     }
@@ -130,9 +141,46 @@ function getDiscountCallback(res) {
 
   function callback3() {
     if (newData.length !== data.length) return;
-    console.log(newData);
-    res.end();
+    res.end(JSON.stringify(newData));
   }
+}
+
+function getDiscountPromise(res) {
+  const data = getSource().myMap((product) => {
+    const amount = amountOfDiscounts(product);
+    const discounts = [];
+    for (let i = 0; i < amount; i++) discounts.push(repeatPromiseUntilResolve(discountPromise));
+    return Promise.all(discounts).then((discountSet) => {
+      product.discount = +discountSet
+        .map((discount) => (100 - discount) / 100)
+        .reduce((acc, red) => acc * red)
+        .toFixed(2);
+      return product;
+    });
+  });
+
+  Promise.all(data).then((result) => {
+    res.end(JSON.stringify(result));
+  });
+}
+
+async function getDiscountAsync(res) {
+  const data = getSource().myMap(async (product) => {
+    const amount = amountOfDiscounts(product);
+    let discounts = [];
+    for (let i = 0; i < amount; i++) discounts.push(repeatPromiseUntilResolve(discountPromisify));
+    discounts = await Promise.all(discounts);
+    discounts = +discounts
+      .map((discount) => (100 - discount) / 100)
+      .reduce((acc, red) => acc * red)
+      .toFixed(2);
+    product.discount = discounts;
+    return product;
+  });
+
+  Promise.all(data).then((result) => {
+    res.end(JSON.stringify(result));
+  });
 }
 
 module.exports = {
@@ -144,4 +192,6 @@ module.exports = {
   getShowData,
   postEdit,
   getDiscountCallback,
+  getDiscountPromise,
+  getDiscountAsync,
 };
