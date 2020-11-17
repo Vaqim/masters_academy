@@ -156,21 +156,25 @@ function getDiscountPromise(res) {
 }
 
 async function getDiscountAsync(res) {
-  let data = getSource().myMap(async (product) => {
-    const amount = amountOfDiscounts(product);
-    let discounts = [];
-    for (let i = 0; i < amount; i++) discounts.push(repeatPromiseUntilResolve(discountPromisify));
-    discounts = await Promise.all(discounts);
-    discounts = +discounts
-      .map((discount) => (100 - discount) / 100)
-      .reduce((acc, red) => acc * red);
-    product.discount = discounts;
-    product.discount = `${((1 - product.discount) * 100).toFixed()}%`;
-    return product;
-  });
+  try {
+    let data = getSource().myMap(async (product) => {
+      const amount = amountOfDiscounts(product);
+      let discounts = [];
+      for (let i = 0; i < amount; i++) discounts.push(repeatPromiseUntilResolve(discountPromisify));
+      discounts = await Promise.all(discounts);
+      discounts = +discounts
+        .map((discount) => (100 - discount) / 100)
+        .reduce((acc, red) => acc * red);
+      product.discount = discounts;
+      product.discount = `${((1 - product.discount) * 100).toFixed()}%`;
+      return product;
+    });
 
-  data = await Promise.all(data);
-  res.end(JSON.stringify(data));
+    data = await Promise.all(data);
+    res.end(JSON.stringify(data));
+  } catch (e) {
+    console.log(e.message);
+  }
 }
 
 module.exports = {
