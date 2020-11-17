@@ -4,7 +4,7 @@ GET http://localhost:3000/
 ###
 GET http://localhost:3000/filter?color=green
 ###
-GET http://localhost:3000/filter?quantity=5
+GET http://localhost:3000/filter?quantity=0
 ###
 GET http://localhost:3000/format
 ###
