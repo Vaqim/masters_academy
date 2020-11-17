@@ -127,8 +127,8 @@ function getDiscountCallback(res) {
     } else {
       product.discount = +product.discount
         .map((discount) => (100 - discount) / 100)
-        .reduce((acc, red) => acc * red)
-        .toFixed(2);
+        .reduce((acc, red) => acc * red);
+      product.discount = `${((1 - product.discount) * 100).toFixed()}%`;
       newData.push(product);
       if (newData.length !== data.length) return;
       res.end(JSON.stringify(newData));
@@ -144,8 +144,8 @@ function getDiscountPromise(res) {
     return Promise.all(discounts).then((discountSet) => {
       product.discount = +discountSet
         .map((discount) => (100 - discount) / 100)
-        .reduce((acc, red) => acc * red)
-        .toFixed(2);
+        .reduce((acc, red) => acc * red);
+      product.discount = `${((1 - product.discount) * 100).toFixed()}%`;
       return product;
     });
   });
@@ -163,9 +163,9 @@ async function getDiscountAsync(res) {
     discounts = await Promise.all(discounts);
     discounts = +discounts
       .map((discount) => (100 - discount) / 100)
-      .reduce((acc, red) => acc * red)
-      .toFixed(2);
+      .reduce((acc, red) => acc * red);
     product.discount = discounts;
+    product.discount = `${((1 - product.discount) * 100).toFixed()}%`;
     return product;
   });
 
