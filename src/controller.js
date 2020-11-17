@@ -109,10 +109,6 @@ function getDiscountCallback(res) {
   const newData = [];
   let amount;
 
-  data.forEach((product) => {
-    discountCallback(callback, product);
-  });
-
   function callback(err, value, product) {
     if (err) {
       return discountCallback(callback, product);
@@ -130,10 +126,14 @@ function getDiscountCallback(res) {
         .reduce((acc, red) => acc * red);
       product.discount = `${((1 - product.discount) * 100).toFixed()}%`;
       newData.push(product);
-      if (newData.length !== data.length) return;
-      res.end(JSON.stringify(newData));
+      if (newData.length === data.length) res.end(JSON.stringify(newData));
+      else return;
     }
   }
+
+  data.forEach((product) => {
+    discountCallback(callback, product);
+  });
 }
 
 function getDiscountPromise(res) {
