@@ -174,6 +174,8 @@ async function getDiscountAsync(res) {
     res.end(JSON.stringify(data));
   } catch (e) {
     console.log(e.message);
+    res.statusCode = 500;
+    res.end('Houston, we have a problem');
   }
 }
 
