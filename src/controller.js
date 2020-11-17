@@ -164,7 +164,7 @@ function getDiscountPromise(res) {
 }
 
 async function getDiscountAsync(res) {
-  const data = getSource().myMap(async (product) => {
+  let data = getSource().myMap(async (product) => {
     const amount = amountOfDiscounts(product);
     let discounts = [];
     for (let i = 0; i < amount; i++) discounts.push(repeatPromiseUntilResolve(discountPromisify));
@@ -177,9 +177,8 @@ async function getDiscountAsync(res) {
     return product;
   });
 
-  Promise.all(data).then((result) => {
-    res.end(JSON.stringify(result));
-  });
+  data = await Promise.all(data);
+  res.end(JSON.stringify(data));
 }
 
 module.exports = {
