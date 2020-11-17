@@ -117,10 +117,6 @@ function getDiscountCallback(res) {
     if (err) {
       return discountCallback(callback, product);
     }
-    callback2(value, product);
-  }
-
-  function callback2(value, product) {
     if (Array.isArray(product.discount)) product.discount.push(value);
     else product.discount = [value];
 
@@ -134,13 +130,9 @@ function getDiscountCallback(res) {
         .reduce((acc, red) => acc * red)
         .toFixed(2);
       newData.push(product);
-      callback3(product);
+      if (newData.length !== data.length) return;
+      res.end(JSON.stringify(newData));
     }
-  }
-
-  function callback3() {
-    if (newData.length !== data.length) return;
-    res.end(JSON.stringify(newData));
   }
 }
 
