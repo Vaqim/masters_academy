@@ -4,12 +4,21 @@ GET http://localhost:3000/
 ###
 GET http://localhost:3000/filter?color=green
 ###
+GET http://localhost:3000/filter?quantity=3
+###
 GET http://localhost:3000/format
 ###
 GET http://localhost:3000/maxcost
 ###
+GET http://localhost:3000/getsalecallback
+###
+GET http://localhost:3000/getsalepromise
+###
+GET http://localhost:3000/getsaleasync
+###
 POST http://localhost:3000/switchsource
 ###
+
 
 # post
 
