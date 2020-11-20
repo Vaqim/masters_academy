@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { first: filter, second: maxCost, third: formatter } = require('./task');
+const { first: filter, second: maxCost, third: formatter } = require('../task');
 const {
   isEmpty,
   discountCallback,
@@ -8,8 +8,8 @@ const {
   discountPromise,
   repeatPromiseUntilResolve,
   discountPromisify,
-} = require('./utils');
-const inputArray = require('../input_array.json');
+} = require('../utils');
+const inputArray = require('../../input_array.json');
 
 let store = [
   { type: 'socks', color: 'red', quantity: 10, priceForPair: '$3' },
