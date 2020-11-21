@@ -1,9 +1,14 @@
 const { parse: parseQuery } = require('querystring');
 const { URL } = require('url');
-const router = require('./router');
+const { routerHandler, streamHandler } = require('./router');
 
 module.exports = (req, res) => {
   try {
+    if (req.headers['content-type'] === 'text/csv') {
+      streamHandler(res, req);
+      return;
+    }
+
     const { url } = req;
     const parsedUrl = new URL(url, process.env.ORIGIN);
     const queryParams = parseQuery(parsedUrl.search.slice(1));
@@ -20,7 +25,7 @@ module.exports = (req, res) => {
       })
       .on('end', () => {
         body = Buffer.concat(body).toString();
-        router(
+        routerHandler(
           {
             ...req,
             body: body ? JSON.parse(body) : {},
