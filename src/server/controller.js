@@ -192,7 +192,7 @@ async function updateCsv(inputStream) {
   const gunzip = createGunzip();
 
   const filename = nanoid(10);
-  const filePath = `./src/upload/${filename}.json`;
+  const filePath = `./src/uploads/${filename}.json`;
   const outputStream = fs.createWriteStream(filePath);
   const csvToJson = createCsvToJson();
 

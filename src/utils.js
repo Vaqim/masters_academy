@@ -1,6 +1,5 @@
 const util = require('util');
 const { Transform } = require('stream');
-const { EEXIST } = require('constants');
 
 function isEmpty(source) {
   return Object.keys(source).length === 0 || source.length === 0;
@@ -57,8 +56,7 @@ const discountPromisify = util.promisify(discountCallback);
 function jsonGenerator(inputArray, keys) {
   return inputArray.reduce((acc, red) => {
     let jsonString = red.split(',').map((e, i) => {
-      if (!isNaN(+e) || e === 'true' || e === 'false') e;
-      else e = `"${e}"`;
+      if (!(!isNaN(+e) || e === 'true' || e === 'false')) e = `"${e}"`;
       return ` "${keys[i]}": ${e}`;
     });
     jsonString = `,\n\t{${jsonString} }`;
