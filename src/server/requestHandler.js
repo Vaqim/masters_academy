@@ -4,7 +4,7 @@ const { routerHandler, streamHandler } = require('./router');
 
 module.exports = (req, res) => {
   try {
-    if (req.headers['content-type'] === 'text/csv') {
+    if (req.headers['content-type'] === 'application/csv+gzip') {
       streamHandler(res, req);
       return;
     }

@@ -1,4 +1,6 @@
 const util = require('util');
+const { Transform } = require('stream');
+const { EEXIST } = require('constants');
 
 function isEmpty(source) {
   return Object.keys(source).length === 0 || source.length === 0;
@@ -52,6 +54,48 @@ function amountOfDiscounts(prod) {
 
 const discountPromisify = util.promisify(discountCallback);
 
+function jsonGenerator(inputArray, keys) {
+  return inputArray.reduce((acc, red) => {
+    let jsonString = red.split(',').map((e, i) => {
+      if (!isNaN(+e) || e === 'true' || e === 'false') e;
+      else e = `"${e}"`;
+      return ` "${keys[i]}": ${e}`;
+    });
+    jsonString = `,\n\t{${jsonString} }`;
+    return acc + jsonString;
+  }, '');
+}
+
+function createCsvToJson() {
+  let isFirst = true;
+  let keys = [];
+  let lastStr = '';
+
+  const transform = (chunk, encoding, callback) => {
+    const strArray = chunk.toString().split('\n');
+
+    strArray[0] = lastStr + strArray[0];
+    lastStr = strArray.pop();
+
+    if (isFirst) {
+      keys = strArray.shift().split(',');
+      const str = jsonGenerator(strArray, keys);
+      callback(null, `[${str.slice(1)}`);
+      isFirst = false;
+      return;
+    }
+
+    const str = jsonGenerator(strArray, keys);
+    callback(null, str);
+  };
+
+  const flush = (callback) => {
+    callback(null, '\n]');
+  };
+
+  return new Transform({ transform, flush });
+}
+
 // eslint-disable-next-line no-extend-native
 Array.prototype.myMap = function (callback) {
   const result = [];
@@ -68,4 +112,5 @@ module.exports = {
   amountOfDiscounts,
   repeatPromiseUntilResolve,
   discountPromisify,
+  createCsvToJson,
 };

@@ -1,5 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+const { createGunzip } = require('zlib');
+const { nanoid } = require('nanoid');
+
 const { first: filter, second: maxCost, third: formatter } = require('../task');
 const {
   isEmpty,
@@ -8,6 +14,7 @@ const {
   discountPromise,
   repeatPromiseUntilResolve,
   discountPromisify,
+  createCsvToJson,
 } = require('../utils');
 const inputArray = require('../../input_array.json');
 
@@ -179,6 +186,23 @@ async function getDiscountAsync(res) {
   }
 }
 
+const promisifiedPipeline = promisify(pipeline);
+
+async function updateCsv(inputStream) {
+  const gunzip = createGunzip();
+
+  const filename = nanoid(10);
+  const filePath = `./src/upload/${filename}.json`;
+  const outputStream = fs.createWriteStream(filePath);
+  const csvToJson = createCsvToJson();
+
+  try {
+    await promisifiedPipeline(inputStream, gunzip, csvToJson, outputStream);
+  } catch (error) {
+    console.log('csv pipeline failed: ', error);
+  }
+}
+
 module.exports = {
   getFilter,
   getMaxCost,
@@ -190,4 +214,5 @@ module.exports = {
   getDiscountCallback,
   getDiscountPromise,
   getDiscountAsync,
+  updateCsv,
 };

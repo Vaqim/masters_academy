@@ -9,6 +9,7 @@ const {
   getDiscountCallback,
   getDiscountPromise,
   getDiscountAsync,
+  updateCsv,
 } = require('./controller');
 
 function routerHandler(req, res) {
@@ -61,7 +62,7 @@ async function streamHandler(res, req) {
 
   if (method === 'PUT' && url === '/store/csv') {
     try {
-      console.log('stream router working'); //
+      updateCsv(req);
     } catch (error) {
       console.error(error.message);
 
@@ -72,7 +73,7 @@ async function streamHandler(res, req) {
     }
     res.setHeader('Content-type', 'application/json');
     res.statusCode = 200;
-    res.end('All rigth!');
+    res.end();
     return;
   }
   notFound(res);
