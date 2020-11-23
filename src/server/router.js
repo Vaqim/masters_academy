@@ -10,6 +10,7 @@ const {
   getDiscountPromise,
   getDiscountAsync,
   updateCsv,
+  postJsonOptimizaition,
 } = require('./controller');
 
 function routerHandler(req, res) {
@@ -48,6 +49,9 @@ function routerHandler(req, res) {
         break;
       case '/switchsource':
         postSwitchSource(res);
+        break;
+      case '/optimize':
+        postJsonOptimizaition(data, res);
         break;
       default:
         notFound(res);

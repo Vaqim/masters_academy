@@ -5,6 +5,7 @@ const { pipeline } = require('stream');
 const { promisify } = require('util');
 const { createGunzip } = require('zlib');
 const { nanoid } = require('nanoid');
+const url = require('url');
 
 const { first: filter, second: maxCost, third: formatter } = require('../task');
 const {
@@ -15,6 +16,7 @@ const {
   repeatPromiseUntilResolve,
   discountPromisify,
   createCsvToJson,
+  buildUniqJson,
 } = require('../utils');
 const inputArray = require('../../input_array.json');
 
@@ -203,6 +205,23 @@ async function updateCsv(inputStream) {
   }
 }
 
+async function postJsonOptimizaition(data, res) {
+  console.log('readStreamPath', `./src/uploads/${data.filename}`);
+  console.log('writeStreamPath', `./src/uploads/optimized/${data.filename}`);
+
+  const readStream = fs.createReadStream(`./src/uploads/${data.filename}`);
+  const buildUniqJsonStream = buildUniqJson();
+  const writeStream = fs.createWriteStream(`./src/uploads/optimized/${data.filename}`);
+
+  try {
+    await promisifiedPipeline(readStream, buildUniqJsonStream, writeStream);
+  } catch (error) {
+    console.log('streams error', error);
+  }
+
+  res.end();
+}
+
 module.exports = {
   getFilter,
   getMaxCost,
@@ -215,4 +234,5 @@ module.exports = {
   getDiscountPromise,
   getDiscountAsync,
   updateCsv,
+  postJsonOptimizaition,
 };

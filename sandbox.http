@@ -18,7 +18,11 @@ GET http://localhost:3000/getsaleasync
 ###
 POST http://localhost:3000/switchsource
 ###
+POST http://localhost:3000/optimize HTTP/1.1
+content-type: application/json
 
+{"filename": "QgbAmbuBwR.json"}
+###
 
 # post
 

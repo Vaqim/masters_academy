@@ -94,6 +94,46 @@ function createCsvToJson() {
   return new Transform({ transform, flush });
 }
 
+function getUniqProducts(store, chunk) {
+  chunk.forEach((line) => {
+    if (line === '[' || line === ']') return;
+    if (line[line.length - 1] === ',') line = line.slice(0, -1);
+    line = line.trim();
+    const product = JSON.parse(line);
+
+    let str = Object.entries(product);
+    str.splice(2, 1);
+
+    str = str.toString();
+
+    if (store[str]) store[str].quantity += product.quantity;
+    else store[str] = product;
+  });
+}
+
+function buildUniqJson() {
+  let lastStr = '';
+  let uniqProducts = {};
+
+  const transform = (chunk, encoding, callback) => {
+    const strArray = chunk.toString().split('\n');
+    strArray[0] = lastStr + strArray[0];
+    lastStr = strArray.pop();
+
+    getUniqProducts(uniqProducts, strArray);
+    console.log(uniqProducts);
+    const uniqProductsObjects = Object.values(uniqProducts);
+
+    callback(null, JSON.stringify(uniqProductsObjects));
+  };
+
+  const flush = (callback) => {
+    callback(null, '');
+  };
+
+  return new Transform({ transform, flush });
+}
+
 // eslint-disable-next-line no-extend-native
 Array.prototype.myMap = function (callback) {
   const result = [];
@@ -111,4 +151,5 @@ module.exports = {
   repeatPromiseUntilResolve,
   discountPromisify,
   createCsvToJson,
+  buildUniqJson,
 };
