@@ -113,7 +113,8 @@ function getUniqProducts(store, chunk) {
 
 function buildUniqJson() {
   let lastStr = '';
-  let uniqProducts = {};
+  const uniqProducts = {};
+  let uniqProductsString = '[\n';
 
   const transform = (chunk, encoding, callback) => {
     const strArray = chunk.toString().split('\n');
@@ -121,14 +122,16 @@ function buildUniqJson() {
     lastStr = strArray.pop();
 
     getUniqProducts(uniqProducts, strArray);
-    console.log(uniqProducts);
-    const uniqProductsObjects = Object.values(uniqProducts);
 
-    callback(null, JSON.stringify(uniqProductsObjects));
+    Object.values(uniqProducts).forEach((e) => {
+      uniqProductsString += `\t${JSON.stringify(e)},\n`;
+    });
+
+    callback(null, uniqProductsString);
   };
 
   const flush = (callback) => {
-    callback(null, '');
+    callback(null, '\n]');
   };
 
   return new Transform({ transform, flush });
