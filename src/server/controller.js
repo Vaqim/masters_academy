@@ -5,7 +5,6 @@ const { pipeline } = require('stream');
 const { promisify } = require('util');
 const { createGunzip } = require('zlib');
 const { nanoid } = require('nanoid');
-const url = require('url');
 
 const { first: filter, second: maxCost, third: formatter } = require('../task');
 const {
@@ -17,6 +16,7 @@ const {
   discountPromisify,
   createCsvToJson,
   buildUniqJson,
+  getFilesInfo,
 } = require('../utils');
 const inputArray = require('../../input_array.json');
 
@@ -206,9 +206,6 @@ async function updateCsv(inputStream) {
 }
 
 async function postJsonOptimizaition(data, res) {
-  console.log('readStreamPath', `./src/uploads/${data.filename}`);
-  console.log('writeStreamPath', `./src/uploads/optimized/${data.filename}`);
-
   const readStream = fs.createReadStream(`./src/uploads/${data.filename}`);
   const buildUniqJsonStream = buildUniqJson();
   const writeStream = fs.createWriteStream(`./src/uploads/optimized/${data.filename}`);
@@ -220,6 +217,22 @@ async function postJsonOptimizaition(data, res) {
   }
 
   res.end();
+}
+
+async function getFiles(res) {
+  const pathToUploads = './src/uploads';
+  const pathToOptomized = pathToUploads.concat('/optimized');
+
+  try {
+    const filesList = await getFilesInfo(pathToUploads);
+    const optFilesList = await getFilesInfo(pathToOptomized);
+
+    res.end(JSON.stringify({ uploads: filesList, optimized: optFilesList }));
+  } catch (error) {
+    console.error(error);
+    res.statusCode = 500;
+    res.end('We have a problem :(');
+  }
 }
 
 module.exports = {
@@ -235,4 +248,5 @@ module.exports = {
   getDiscountAsync,
   updateCsv,
   postJsonOptimizaition,
+  getFiles,
 };

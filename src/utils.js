@@ -1,5 +1,7 @@
 const util = require('util');
 const { Transform } = require('stream');
+const { promisify } = require('util');
+const fs = require('fs');
 
 function isEmpty(source) {
   return Object.keys(source).length === 0 || source.length === 0;
@@ -140,6 +142,19 @@ function buildUniqJson() {
   return new Transform({ transform, flush });
 }
 
+async function getFilesInfo(pathToDir) {
+  const statPromisified = promisify(fs.stat);
+  const readdirPromisified = promisify(fs.readdir);
+
+  let files = await readdirPromisified(pathToDir);
+  files = files.filter((file) => file.split('.').length >= 2);
+  files = files.map(async (file) => {
+    const { size, birthtime } = await statPromisified(`${pathToDir}/${file}`);
+    return { filename: file, size, birthtime };
+  });
+  return Promise.all(files);
+}
+
 // eslint-disable-next-line no-extend-native
 Array.prototype.myMap = function (callback) {
   const result = [];
@@ -158,4 +173,5 @@ module.exports = {
   discountPromisify,
   createCsvToJson,
   buildUniqJson,
+  getFilesInfo,
 };

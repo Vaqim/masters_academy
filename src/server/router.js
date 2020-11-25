@@ -11,6 +11,7 @@ const {
   getDiscountAsync,
   updateCsv,
   postJsonOptimizaition,
+  getFiles,
 } = require('./controller');
 
 function routerHandler(req, res) {
@@ -38,6 +39,9 @@ function routerHandler(req, res) {
         break;
       case '/getsaleasync':
         getDiscountAsync(res);
+        break;
+      case '/getfilse':
+        getFiles(res);
         break;
       default:
         notFound(res);
