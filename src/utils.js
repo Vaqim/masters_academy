@@ -103,7 +103,6 @@ function getUniqProducts(store, chunk) {
 
     let str = Object.entries(product);
     str.splice(2, 1);
-
     str = str.toString();
 
     if (store[str]) store[str].quantity += product.quantity;
@@ -123,15 +122,19 @@ function buildUniqJson() {
 
     getUniqProducts(uniqProducts, strArray);
 
-    Object.values(uniqProducts).forEach((e) => {
-      uniqProductsString += `\t${JSON.stringify(e)},\n`;
-    });
-
-    callback(null, uniqProductsString);
+    callback(null, null);
   };
 
   const flush = (callback) => {
-    callback(null, '\n]');
+    const values = Object.values(uniqProducts);
+    values.forEach((e, i) => {
+      if (i === values.length - 1) {
+        uniqProductsString += `\t${JSON.stringify(e)}\n`;
+        return;
+      }
+      uniqProductsString += `\t${JSON.stringify(e)},\n`;
+    });
+    callback(null, `${uniqProductsString}]`);
   };
 
   return new Transform({ transform, flush });
