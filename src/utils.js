@@ -61,6 +61,15 @@ function jsonGenerator(inputArray, keys) {
       if (!(!isNaN(+e) || e === 'true' || e === 'false')) e = `"${e}"`;
       return ` "${keys[i]}": ${e}`;
     });
+
+    if (jsonString[4] === ' "isPair": true') {
+      const priceForPair = ` "PriceForPair":${jsonString[3].split(':')[1]}`;
+      jsonString[3] = priceForPair;
+    }
+
+    jsonString.length -= 1;
+
+    console.log(jsonString);
     jsonString = `,\n\t{${jsonString} }`;
     return acc + jsonString;
   }, '');
@@ -84,7 +93,6 @@ function createCsvToJson() {
       isFirst = false;
       return;
     }
-
     const str = jsonGenerator(strArray, keys);
     callback(null, str);
   };
@@ -92,7 +100,6 @@ function createCsvToJson() {
   const flush = (callback) => {
     callback(null, '\n]');
   };
-
   return new Transform({ transform, flush });
 }
 
@@ -138,7 +145,6 @@ function buildUniqJson() {
     });
     callback(null, `${uniqProductsString}]`);
   };
-
   return new Transform({ transform, flush });
 }
 
