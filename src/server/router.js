@@ -40,7 +40,7 @@ function routerHandler(req, res) {
       case '/getsaleasync':
         getDiscountAsync(res);
         break;
-      case '/getfilse':
+      case '/getfiles':
         getFiles(res);
         break;
       default:

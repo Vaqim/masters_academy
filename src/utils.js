@@ -59,18 +59,14 @@ function jsonGenerator(inputArray, keys) {
   return inputArray.reduce((acc, red) => {
     let jsonString = red.split(',').map((e, i) => {
       if (!(!isNaN(+e) || e === 'true' || e === 'false')) e = `"${e}"`;
-      return ` "${keys[i]}": ${e}`;
+      return `"${keys[i]}":${e}`;
     });
 
-    if (jsonString[4] === ' "isPair": true') {
-      const priceForPair = ` "PriceForPair":${jsonString[3].split(':')[1]}`;
-      jsonString[3] = priceForPair;
+    if (jsonString[4] === ' "isPair":true') {
+      jsonString[3] = ` "PriceForPair":${jsonString[3].split(':')[1]}`;
     }
-
     jsonString.length -= 1;
-
-    console.log(jsonString);
-    jsonString = `,\n\t{${jsonString} }`;
+    jsonString = `,\n\t{${jsonString}}`;
     return acc + jsonString;
   }, '');
 }

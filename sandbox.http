@@ -19,12 +19,12 @@ GET http://localhost:3000/getsaleasync
 POST http://localhost:3000/switchsource
 ###
 
-GET http://localhost:3000/getfilse
+GET http://localhost:3000/getfiles
 ###
 POST http://localhost:3000/optimize HTTP/1.1
 content-type: application/json
 
-{"filename": "2.json"}
+{"filename": "mid.json"}
 ###
 
 # post
