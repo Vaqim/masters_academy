@@ -19,6 +19,7 @@ const {
   getFilesInfo,
 } = require('../utils');
 const inputArray = require('../../input_array.json');
+const { env } = require('process');
 
 let store = [
   { type: 'socks', color: 'red', quantity: 10, priceForPair: '$3' },
@@ -191,10 +192,10 @@ async function getDiscountAsync(res) {
 const promisifiedPipeline = promisify(pipeline);
 
 async function updateCsv(inputStream) {
+  if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
   const gunzip = createGunzip();
-
   const filename = nanoid(10);
-  const filePath = `./src/uploads/${filename}.json`;
+  const filePath = `${process.env.UPLOADS}/${filename}.json`;
   const outputStream = fs.createWriteStream(filePath);
   const csvToJson = createCsvToJson();
 
@@ -206,9 +207,10 @@ async function updateCsv(inputStream) {
 }
 
 async function postJsonOptimizaition(data, res) {
-  const readStream = fs.createReadStream(`./src/uploads/${data.filename}`);
+  if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
+  const readStream = fs.createReadStream(`${process.env.UPLOADS}/${data.filename}`);
   const buildUniqJsonStream = buildUniqJson();
-  const writeStream = fs.createWriteStream(`./src/uploads/optimized/${data.filename}`);
+  const writeStream = fs.createWriteStream(`${process.env.OPTIMIZED}/${data.filename}`);
 
   try {
     await promisifiedPipeline(readStream, buildUniqJsonStream, writeStream);
@@ -220,8 +222,8 @@ async function postJsonOptimizaition(data, res) {
 }
 
 async function getFiles(res) {
-  const pathToUploads = './src/uploads';
-  const pathToOptomized = pathToUploads.concat('/optimized');
+  const pathToUploads = process.env.UPLOADS;
+  const pathToOptomized = process.env.OPTIMIZED;
 
   try {
     const filesList = await getFilesInfo(pathToUploads);
