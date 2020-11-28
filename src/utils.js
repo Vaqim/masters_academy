@@ -63,7 +63,7 @@ function jsonGenerator(inputArray, keys) {
     });
 
     if (jsonString[4] === ' "isPair":true') {
-      jsonString[3] = ` "PriceForPair":${jsonString[3].split(':')[1]}`;
+      jsonString[3] = ` "priceForPair":${jsonString[3].split(':')[1]}`;
     }
     jsonString.length -= 1;
     jsonString = `,\n\t{${jsonString}}`;
