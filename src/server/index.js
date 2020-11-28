@@ -13,7 +13,7 @@ function stop(callback) {
   server.close((err) => {
     if (err) {
       console.error(err, 'Failed to close server!');
-      callback();
+      callback(err);
       return;
     }
 
