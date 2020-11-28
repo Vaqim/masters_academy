@@ -153,11 +153,12 @@ async function getFilesInfo(pathToDir) {
   const readdirPromisified = promisify(fs.readdir);
 
   let files = await readdirPromisified(pathToDir);
-  files = files.filter((file) => file.split('.').length >= 2);
-  files = files.map(async (file) => {
-    const { size, birthtime } = await statPromisified(`${pathToDir}/${file}`);
-    return { filename: file, size, birthtime };
-  });
+  files = files
+    .filter((file) => file.split('.').length >= 2)
+    .map(async (file) => {
+      const { size, birthtime } = await statPromisified(`${pathToDir}/${file}`);
+      return { filename: file, size, birthtime };
+    });
   return Promise.all(files);
 }
 
