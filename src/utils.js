@@ -2,6 +2,7 @@ const util = require('util');
 const { Transform } = require('stream');
 const { promisify } = require('util');
 const fs = require('fs');
+const path = require('path');
 
 function isEmpty(source) {
   return Object.keys(source).length === 0 || source.length === 0;
@@ -158,7 +159,7 @@ async function getFilesInfo(pathToDir) {
   files = files
     .filter((file) => file.split('.').length >= 2)
     .map(async (file) => {
-      const { size, birthtime } = await statPromisified(`${pathToDir}/${file}`);
+      const { size, birthtime } = await statPromisified(path.join(pathToDir, file));
       return { filename: file, size, birthtime };
     });
   return Promise.all(files);

@@ -192,10 +192,9 @@ async function getDiscountAsync(res) {
 const promisifiedPipeline = promisify(pipeline);
 
 async function updateCsv(inputStream) {
-  if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
   const gunzip = createGunzip();
   const filename = nanoid(10);
-  const filePath = `${process.env.UPLOADS}/${filename}.json`;
+  const filePath = path.join(process.env.UPLOADS, filename);
   const outputStream = fs.createWriteStream(filePath);
   const csvToJson = createCsvToJson();
 
@@ -207,9 +206,9 @@ async function updateCsv(inputStream) {
 }
 
 async function postJsonOptimization(data, res) {
-  const readStream = fs.createReadStream(`${process.env.UPLOADS}/${data.filename}`);
+  const readStream = fs.createReadStream(path.join(process.env.UPLOADS, data.filename));
   const buildUniqJsonStream = buildUniqJson();
-  const writeStream = fs.createWriteStream(`${process.env.OPTIMIZED}/${data.filename}`);
+  const writeStream = fs.createWriteStream(path.join(process.env.OPTIMIZED, data.filename));
 
   try {
     res.statusCode = 202;
