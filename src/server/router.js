@@ -10,7 +10,7 @@ const {
   getDiscountPromise,
   getDiscountAsync,
   updateCsv,
-  postJsonOptimizaition,
+  postJsonOptimization,
   getFiles,
 } = require('./controller');
 
@@ -55,7 +55,7 @@ function routerHandler(req, res) {
         postSwitchSource(res);
         break;
       case '/optimize':
-        postJsonOptimizaition(data, res);
+        postJsonOptimization(data, res);
         break;
       default:
         notFound(res);
