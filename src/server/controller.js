@@ -19,7 +19,6 @@ const {
   getFilesInfo,
 } = require('../utils');
 const inputArray = require('../../input_array.json');
-const { env } = require('process');
 
 let store = [
   { type: 'socks', color: 'red', quantity: 10, priceForPair: '$3' },
