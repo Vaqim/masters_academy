@@ -206,19 +206,18 @@ async function updateCsv(inputStream) {
   }
 }
 
-async function postJsonOptimizaition(data, res) {
-  if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
+async function postJsonOptimization(data, res) {
   const readStream = fs.createReadStream(`${process.env.UPLOADS}/${data.filename}`);
   const buildUniqJsonStream = buildUniqJson();
   const writeStream = fs.createWriteStream(`${process.env.OPTIMIZED}/${data.filename}`);
 
   try {
+    res.statusCode = 202;
+    res.end();
     await promisifiedPipeline(readStream, buildUniqJsonStream, writeStream);
   } catch (error) {
     console.log('streams error', error);
   }
-
-  res.end();
 }
 
 async function getFiles(res) {
@@ -249,6 +248,6 @@ module.exports = {
   getDiscountPromise,
   getDiscountAsync,
   updateCsv,
-  postJsonOptimizaition,
+  postJsonOptimization,
   getFiles,
 };

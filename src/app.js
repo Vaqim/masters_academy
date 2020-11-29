@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 const server = require('./server');
 
 function enableGracefulExit() {
@@ -22,6 +23,8 @@ function enableGracefulExit() {
 }
 
 function boot() {
+  if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
+  if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
   enableGracefulExit();
   server.start();
 }

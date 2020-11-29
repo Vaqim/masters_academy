@@ -100,11 +100,14 @@ function createCsvToJson() {
 }
 
 function getUniqProducts(store, chunk) {
+  let chunkQuantity = 0;
   chunk.forEach((line) => {
     if (line === '[' || line === ']') return;
     if (line[line.length - 1] === ',') line = line.slice(0, -1);
     line = line.trim();
     const product = JSON.parse(line);
+
+    chunkQuantity += product.quantity;
 
     let str = Object.entries(product);
     str.splice(2, 1);
@@ -113,19 +116,21 @@ function getUniqProducts(store, chunk) {
     if (store[str]) store[str].quantity += product.quantity;
     else store[str] = product;
   });
+  return chunkQuantity;
 }
 
 function buildUniqJson() {
   let lastStr = '';
   const uniqProducts = {};
   let uniqProductsString = '[\n';
+  let amountOfProducts = 0;
 
   const transform = (chunk, encoding, callback) => {
     const strArray = chunk.toString().split('\n');
     strArray[0] = lastStr + strArray[0];
     lastStr = strArray.pop();
 
-    getUniqProducts(uniqProducts, strArray);
+    amountOfProducts += getUniqProducts(uniqProducts, strArray);
 
     callback(null, null);
   };
@@ -140,6 +145,7 @@ function buildUniqJson() {
       uniqProductsString += `\t${JSON.stringify(e)},\n`;
     });
     callback(null, `${uniqProductsString}]`);
+    console.log(`Optimization done!\nTotal quantity: ${amountOfProducts}`);
   };
   return new Transform({ transform, flush });
 }
