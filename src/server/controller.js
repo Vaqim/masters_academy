@@ -192,7 +192,7 @@ const promisifiedPipeline = promisify(pipeline);
 
 async function updateCsv(inputStream) {
   const gunzip = createGunzip();
-  const filename = nanoid(10);
+  const filename = `${nanoid(10)}.json`;
   const filePath = path.join(process.env.UPLOADS, filename);
   const outputStream = fs.createWriteStream(filePath);
   const csvToJson = createCsvToJson();
