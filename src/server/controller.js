@@ -206,7 +206,15 @@ async function updateCsv(inputStream) {
 }
 
 async function postJsonOptimization(data, res) {
-  const readStream = fs.createReadStream(path.join(process.env.UPLOADS, data.filename));
+  const filePath = path.join(process.env.UPLOADS, data.filename);
+
+  if (!fs.existsSync(filePath)) {
+    res.statusCode = 422;
+    res.end('incorrect filename');
+    return;
+  }
+
+  const readStream = fs.createReadStream(filePath);
   const buildUniqJsonStream = buildUniqJson();
   const writeStream = fs.createWriteStream(path.join(process.env.OPTIMIZED, data.filename));
 
