@@ -25,10 +25,12 @@ module.exports = (req, res) => {
       })
       .on('end', () => {
         body = Buffer.concat(body).toString();
+        if (req.headers['content-type'] === 'application/json') body = JSON.parse(body);
+        else body = {};
         routerHandler(
           {
             ...req,
-            body: body ? JSON.parse(body) : {},
+            body,
             queryParams,
             path,
           },
