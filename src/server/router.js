@@ -9,9 +9,12 @@ const {
   getDiscountCallback,
   getDiscountPromise,
   getDiscountAsync,
+  updateCsv,
+  postJsonOptimization,
+  getFiles,
 } = require('./controller');
 
-module.exports = (req, res) => {
+function routerHandler(req, res) {
   const { path, method, queryParams, body: data } = req;
 
   if (method === 'GET') {
@@ -37,6 +40,9 @@ module.exports = (req, res) => {
       case '/getsaleasync':
         getDiscountAsync(res);
         break;
+      case '/getfiles':
+        getFiles(res);
+        break;
       default:
         notFound(res);
     }
@@ -48,10 +54,40 @@ module.exports = (req, res) => {
       case '/switchsource':
         postSwitchSource(res);
         break;
+      case '/optimize':
+        postJsonOptimization(data, res);
+        break;
       default:
         notFound(res);
     }
   } else {
     notFound(res);
   }
+}
+
+async function streamHandler(res, req) {
+  const { url, method } = req;
+
+  if (method === 'PUT' && url === '/store/csv') {
+    try {
+      updateCsv(req);
+    } catch (error) {
+      console.error(error.message);
+
+      res.setHeader('Content-type', 'application/json');
+      res.statusCode = 500;
+      res.end('We have an error');
+      return;
+    }
+    res.setHeader('Content-type', 'application/json');
+    res.statusCode = 200;
+    res.end();
+    return;
+  }
+  notFound(res);
+}
+
+module.exports = {
+  routerHandler,
+  streamHandler,
 };

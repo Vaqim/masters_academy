@@ -1,6 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const { first: filter, second: maxCost, third: formatter } = require('./task');
+
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+const { createGunzip } = require('zlib');
+const { nanoid } = require('nanoid');
+
+const { first: filter, second: maxCost, third: formatter } = require('../task');
 const {
   isEmpty,
   discountCallback,
@@ -8,8 +14,11 @@ const {
   discountPromise,
   repeatPromiseUntilResolve,
   discountPromisify,
-} = require('./utils');
-const inputArray = require('../input_array.json');
+  createCsvToJson,
+  buildUniqJson,
+  getFilesInfo,
+} = require('../utils');
+const inputArray = require('../../input_array.json');
 
 let store = [
   { type: 'socks', color: 'red', quantity: 10, priceForPair: '$3' },
@@ -179,6 +188,60 @@ async function getDiscountAsync(res) {
   }
 }
 
+const promisifiedPipeline = promisify(pipeline);
+
+async function updateCsv(inputStream) {
+  const gunzip = createGunzip();
+  const filename = `${nanoid(10)}.json`;
+  const filePath = path.join(process.env.UPLOADS, filename);
+  const outputStream = fs.createWriteStream(filePath);
+  const csvToJson = createCsvToJson();
+
+  try {
+    await promisifiedPipeline(inputStream, gunzip, csvToJson, outputStream);
+  } catch (error) {
+    console.log('csv pipeline failed: ', error);
+  }
+}
+
+async function postJsonOptimization(data, res) {
+  const filePath = path.join(process.env.UPLOADS, data.filename);
+
+  if (!fs.existsSync(filePath)) {
+    res.statusCode = 422;
+    res.end('incorrect filename');
+    return;
+  }
+
+  const readStream = fs.createReadStream(filePath);
+  const buildUniqJsonStream = buildUniqJson();
+  const writeStream = fs.createWriteStream(path.join(process.env.OPTIMIZED, data.filename));
+
+  try {
+    res.statusCode = 202;
+    res.end();
+    await promisifiedPipeline(readStream, buildUniqJsonStream, writeStream);
+  } catch (error) {
+    console.log('streams error', error);
+  }
+}
+
+async function getFiles(res) {
+  const pathToUploads = process.env.UPLOADS;
+  const pathToOptomized = process.env.OPTIMIZED;
+
+  try {
+    const filesList = await getFilesInfo(pathToUploads);
+    const optFilesList = await getFilesInfo(pathToOptomized);
+
+    res.end(JSON.stringify({ uploads: filesList, optimized: optFilesList }));
+  } catch (error) {
+    console.error(error);
+    res.statusCode = 500;
+    res.end('We have a problem :(');
+  }
+}
+
 module.exports = {
   getFilter,
   getMaxCost,
@@ -190,4 +253,7 @@ module.exports = {
   getDiscountCallback,
   getDiscountPromise,
   getDiscountAsync,
+  updateCsv,
+  postJsonOptimization,
+  getFiles,
 };
