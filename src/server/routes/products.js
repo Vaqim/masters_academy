@@ -6,8 +6,14 @@ const product = Router();
 
 product.put(
   '/upload',
-  asyncHandler(async (req) => {
-    await productsController.updateCsv(req);
+  asyncHandler(async (req, res) => {
+    try {
+      await productsController.updateCsv(req);
+      res.send('uploaded');
+    } catch (error) {
+      console.log(error.message || error);
+      res.send('error').status(500);
+    }
   }),
 );
 
@@ -18,7 +24,7 @@ product.get(
   }),
 );
 
-product.get(
+product.post(
   '/upload/optimize',
   asyncHandler(async (req, res) => {
     await productsController.jsonOptimization(req.body, res);
