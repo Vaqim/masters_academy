@@ -1,13 +1,35 @@
-require('dotenv').config();
 const fs = require('fs');
-const server = require('./server');
+const { createServer } = require('http');
+const config = require('./config');
+const app = require('./server');
+
+const server = createServer(app);
+
+function start() {
+  server.listen(+config.port, () => {
+    console.log(`Listening in port ${config.port}`);
+  });
+}
+
+function stop(callback) {
+  server.close((err) => {
+    if (err) {
+      console.error(err, 'Failed to close server!');
+      callback(err);
+      return;
+    }
+
+    console.log('Server has been stopped.');
+    callback();
+  });
+}
 
 function enableGracefulExit() {
   const exitHandler = (error) => {
     if (error) console.error(error);
 
     console.log('Graceful stopping...');
-    server.stop(() => {
+    stop(() => {
       process.exit();
     });
   };
@@ -26,7 +48,7 @@ function boot() {
   if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
   if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
   enableGracefulExit();
-  server.start();
+  start();
 }
 
 boot();

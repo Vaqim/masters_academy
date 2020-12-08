@@ -1,28 +1,22 @@
-const http = require('http');
-const requestHandler = require('./requestHandler');
+const bodyParser = require('body-parser');
+const express = require('express');
+const { discounts, products, tasks } = require('./routes');
+const { authentication, errorHandler } = require('./middlewares');
 
-const server = http.createServer(requestHandler);
+const app = express();
 
-function start() {
-  server.listen(Number(process.env.PORT), () => {
-    console.log(`Listening in port ${process.env.PORT}`);
-  });
-}
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(authentication);
 
-function stop(callback) {
-  server.close((err) => {
-    if (err) {
-      console.error(err, 'Failed to close server!');
-      callback(err);
-      return;
-    }
+app.use('/task', tasks);
+app.use('/discount', discounts);
+app.use('/products', products);
 
-    console.log('Server has been stopped.');
-    callback();
-  });
-}
+app.get('/', (req, res) => {
+  res.send('Home page');
+});
 
-module.exports = {
-  start,
-  stop,
-};
+app.use(errorHandler);
+
+module.exports = app;
