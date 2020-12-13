@@ -2,6 +2,7 @@ const fs = require('fs');
 const { createServer } = require('http');
 const config = require('./config');
 const app = require('./server');
+const db = require('./db')(config.db);
 
 const server = createServer(app);
 
@@ -44,11 +45,20 @@ function enableGracefulExit() {
   process.on('unhendledRejection', exitHandler);
 }
 
-function boot() {
-  if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
-  if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
-  enableGracefulExit();
-  start();
+async function boot() {
+  await db.testConnection();
+  const p = await db.createProduct({
+    type: 'socks',
+    color: 'red',
+    price: 3.3,
+  });
+  const prod = await db.getProduct(p.id);
+  console.log(`product ${JSON.stringify(p)}`);
+  console.log(`product ${JSON.stringify(prod)}`);
+  // if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
+  // if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
+  // enableGracefulExit();
+  // start();
 }
 
 boot();
