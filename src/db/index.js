@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
-const { db: dbConfig } = require('../config');
+const { db: dbCOnfig } = require('../config');
 
-const client = new Pool(dbConfig);
+const client = new Pool(dbCOnfig);
 
 async function testConnection() {
   try {

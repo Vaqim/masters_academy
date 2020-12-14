@@ -6,7 +6,7 @@ const {
   discountPromisify,
 } = require('./discounts');
 const { csvToObjectStream } = require('./products');
-const { fatal, isEmpty } = require('./utils');
+const { isEmpty } = require('./utils');
 
 module.exports = {
   discountCallback,
@@ -16,5 +16,4 @@ module.exports = {
   discountPromisify,
   csvToObjectStream,
   isEmpty,
-  fatal,
 };

@@ -43,7 +43,7 @@ function csvToObjectStream() {
   let lastStr = '';
   const uniqStore = [];
 
-  const transform = async (chunk, encoding, callback) => {
+  const transform = (chunk, encoding, callback) => {
     const strArray = chunk.toString().split('\n');
 
     strArray[0] = lastStr + strArray[0];
@@ -54,8 +54,7 @@ function csvToObjectStream() {
       isFirst = false;
     }
 
-    const objectG = objectGenerator(strArray, keys);
-    getUniqProducts(uniqStore, objectG);
+    getUniqProducts(uniqStore, objectGenerator(strArray, keys));
     callback(null, null);
   };
 
