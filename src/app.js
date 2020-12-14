@@ -1,14 +1,13 @@
-const fs = require('fs');
 const { createServer } = require('http');
-const config = require('./config');
+const { port } = require('./config');
 const app = require('./server');
-const db = require('./db')(config.db);
+const db = require('./db');
 
 const server = createServer(app);
 
 function start() {
-  server.listen(+config.port, () => {
-    console.log(`Listening in port ${config.port}`);
+  server.listen(+port, () => {
+    console.log(`Listening in port ${port}`);
   });
 }
 
@@ -46,19 +45,9 @@ function enableGracefulExit() {
 }
 
 async function boot() {
+  enableGracefulExit();
   await db.testConnection();
-  const p = await db.createProduct({
-    type: 'socks',
-    color: 'red',
-    price: 3.3,
-  });
-  const prod = await db.getProduct(p.id);
-  console.log(`product ${JSON.stringify(p)}`);
-  console.log(`product ${JSON.stringify(prod)}`);
-  // if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
-  // if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
-  // enableGracefulExit();
-  // start();
+  start();
 }
 
 boot();
