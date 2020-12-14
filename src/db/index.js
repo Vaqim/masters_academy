@@ -53,7 +53,7 @@ async function getProduct(id) {
   }
 }
 
-async function updateProducts({ id, ...product }) {
+async function updateProduct({ id, ...product }) {
   try {
     if (!id) throw new Error('no id');
 
@@ -68,15 +68,18 @@ async function updateProducts({ id, ...product }) {
 
     if (!values.length) throw new Error('nothing to update');
 
+    values.push(new Date());
     values.push(id);
 
     const res = await client.query(
-      `UPDATE products SET ${query.join(',')} WHERE id = $${values.length} RETURNING *`,
+      `UPDATE products SET ${query.join(',')}, updated_at = $${values.length - 1} WHERE id = $${
+        values.length
+      } RETURNING *`,
       values,
     );
 
     console.log(`DEBUG: Proudct updated ${JSON.stringify(res.rows[0])}`);
-    return true;
+    return JSON.stringify(res.rows[0]);
   } catch (error) {
     console.error(error.message || error);
     throw error;
@@ -110,7 +113,7 @@ module.exports = {
   close,
   createProduct,
   getProduct,
-  updateProducts,
+  updateProduct,
   deleteProduct,
   getAllProducts,
 };

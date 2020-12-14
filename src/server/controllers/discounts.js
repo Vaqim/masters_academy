@@ -1,4 +1,3 @@
-const productsArray = require('../../../input_array.json');
 const {
   discountCallback,
   discountPromise,
@@ -6,9 +5,10 @@ const {
   amountOfDiscounts,
   repeatPromiseUntilResolve,
 } = require('../../services');
+const { getAllProducts } = require('../../db');
 
-function getDiscountCallback(res) {
-  const data = productsArray;
+async function getDiscountCallback(res) {
+  const data = await getAllProducts();
   const newData = [];
   let amount;
 
@@ -39,7 +39,8 @@ function getDiscountCallback(res) {
   });
 }
 
-function getDiscountPromise(res) {
+async function getDiscountPromise(res) {
+  const productsArray = await getAllProducts();
   const data = productsArray.myMap((product) => {
     const amount = amountOfDiscounts(product);
     const discounts = [];
@@ -60,6 +61,7 @@ function getDiscountPromise(res) {
 
 async function getDiscountAsync(res) {
   try {
+    const productsArray = await getAllProducts();
     let data = productsArray.myMap(async (product) => {
       const amount = amountOfDiscounts(product);
       let discounts = [];
