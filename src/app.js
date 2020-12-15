@@ -41,7 +41,7 @@ function enableGracefulExit() {
   process.on('SIGUSR2', exitHandler);
 
   process.on('uncaugthException', exitHandler);
-  process.on('unhendledRejection', exitHandler);
+  process.on('unhandledRejection', exitHandler);
 }
 
 async function boot() {
