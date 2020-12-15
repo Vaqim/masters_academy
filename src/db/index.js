@@ -26,11 +26,16 @@ async function createProduct({ type, color, price, isPair, quantity = 0 }) {
     if (isPair === null) throw new Error('ERROR: no product isPair option defined');
 
     const timestamp = new Date();
-
-    const res = await client.query(
-      'INSERT INTO products(type, color, price, quantity, created_at, updated_at, deleted_at, is_pair) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [type, color, price, quantity, timestamp, timestamp, null, isPair],
+    let res = await client.query(
+      'UPDATE products SET quantity = quantity + $1, updated_at = $2 WHERE price = $3 AND color = $4 AND price = $5 RETURNING *',
+      [quantity, timestamp, price, color, price],
     );
+
+    if (!res.rows[0])
+      res = await client.query(
+        'INSERT INTO products(type, color, price, quantity, created_at, updated_at, deleted_at, is_pair) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+        [type, color, price, quantity, timestamp, timestamp, null, isPair],
+      );
 
     console.log(`DEBUG: new product created: ${JSON.stringify(res.rows[0])}`);
     return res.rows[0];
