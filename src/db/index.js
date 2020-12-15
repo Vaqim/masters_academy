@@ -28,7 +28,7 @@ async function createProduct({ type, color, price, isPair, quantity = 0 }) {
     const timestamp = new Date();
 
     const res = await client.query(
-      'INSERT INTO products(type, color, price, quantity, created_at, updated_at, deleted_at, ispair) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      'INSERT INTO products(type, color, price, quantity, created_at, updated_at, deleted_at, is_pair) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
       [type, color, price, quantity, timestamp, timestamp, null, isPair],
     );
 
