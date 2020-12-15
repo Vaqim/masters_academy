@@ -62,6 +62,10 @@ async function updateProduct({ id, ...product }) {
   try {
     if (!id) throw new Error('no id');
 
+    delete product.updated_at;
+    delete product.created_at;
+    delete product.deleted_at;
+
     const query = [];
     const values = [];
 
