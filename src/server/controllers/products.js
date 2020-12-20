@@ -40,7 +40,7 @@ async function getProductById({ id }, res) {
 
     const product = await getProduct(id);
     if (!product) {
-      res.send('product is not defined').status(404);
+      res.send('Product wasn`t found').status(404);
       return false;
     }
 
@@ -54,6 +54,11 @@ async function getProductById({ id }, res) {
 
 async function updateProductByParams(body, res) {
   try {
+    if (!body.id || !typeof +body.id === 'number') {
+      res.send('incorrect request data').status(400);
+      return false;
+    }
+
     const product = await updateProduct(body);
     if (!product) {
       res.send('incorrect params').status(400);
