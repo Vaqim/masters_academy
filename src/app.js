@@ -1,13 +1,13 @@
-const fs = require('fs');
 const { createServer } = require('http');
-const config = require('./config');
+const { port } = require('./config');
 const app = require('./server');
+const db = require('./db');
 
 const server = createServer(app);
 
 function start() {
-  server.listen(+config.port, () => {
-    console.log(`Listening in port ${config.port}`);
+  server.listen(+port, () => {
+    console.log(`Listening in port ${port}`);
   });
 }
 
@@ -41,13 +41,12 @@ function enableGracefulExit() {
   process.on('SIGUSR2', exitHandler);
 
   process.on('uncaugthException', exitHandler);
-  process.on('unhendledRejection', exitHandler);
+  process.on('unhandledRejection', exitHandler);
 }
 
-function boot() {
-  if (!fs.existsSync(process.env.UPLOADS)) fs.mkdirSync(process.env.UPLOADS);
-  if (!fs.existsSync(process.env.OPTIMIZED)) fs.mkdirSync(process.env.OPTIMIZED);
+async function boot() {
   enableGracefulExit();
+  await db.testConnection();
   start();
 }
 

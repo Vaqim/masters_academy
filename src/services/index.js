@@ -5,8 +5,8 @@ const {
   repeatPromiseUntilResolve,
   discountPromisify,
 } = require('./discounts');
-const { createCsvToJson, buildUniqJson, getFilesInfo } = require('./products');
-const { fatal, isEmpty } = require('./utils');
+const { csvToObjectStream } = require('./products');
+const { isEmpty } = require('./utils');
 
 module.exports = {
   discountCallback,
@@ -14,9 +14,6 @@ module.exports = {
   amountOfDiscounts,
   repeatPromiseUntilResolve,
   discountPromisify,
-  createCsvToJson,
-  buildUniqJson,
-  getFilesInfo,
+  csvToObjectStream,
   isEmpty,
-  fatal,
 };

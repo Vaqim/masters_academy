@@ -8,7 +8,8 @@ product.put(
   '/upload',
   asyncHandler(async (req, res) => {
     try {
-      await productsController.updateCsv(req);
+      console.log('accepted');
+      await productsController.productsFromFileToDB(req);
       res.send('uploaded');
     } catch (error) {
       console.log(error.message || error);
@@ -17,17 +18,48 @@ product.put(
   }),
 );
 
-product.get(
-  '/getFiles',
+product.post(
+  '/create',
   asyncHandler(async (req, res) => {
-    await productsController.getFiles(res);
+    try {
+      await productsController.createProductByParams(req.body, res);
+    } catch (err) {
+      console.error(err);
+    }
   }),
 );
 
-product.post(
-  '/upload/optimize',
+product.get(
+  '/read',
   asyncHandler(async (req, res) => {
-    await productsController.jsonOptimization(req.body, res);
+    try {
+      await productsController.getProductById(req.query, res);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }),
+);
+
+product.patch(
+  '/update',
+  asyncHandler(async (req, res) => {
+    try {
+      await productsController.updateProductByParams(req.body, res);
+    } catch (err) {
+      console.error(err);
+    }
+  }),
+);
+
+product.delete(
+  '/delete',
+  asyncHandler(async (req, res) => {
+    try {
+      productsController.deleteProductById(req.query, res);
+    } catch (err) {
+      console.error(err);
+    }
   }),
 );
 

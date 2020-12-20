@@ -1,60 +1,95 @@
-const fs = require('fs');
 const { createGunzip } = require('zlib');
-const { nanoid } = require('nanoid');
-const path = require('path');
 const { promisify } = require('util');
 const { pipeline } = require('stream');
-const { createCsvToJson, buildUniqJson, getFilesInfo } = require('../../services');
+const { csvToObjectStream } = require('../../services');
+const { createProduct, getProduct, updateProduct, deleteProduct } = require('../../db');
 
 const promisifiedPipeline = promisify(pipeline);
 
-async function updateCsv(inputStream) {
-  const gunzip = createGunzip();
-  const filename = `${nanoid(10)}.json`;
-  const filePath = path.join(process.env.UPLOADS, filename);
-  const outputStream = fs.createWriteStream(filePath);
-  const csvToJson = createCsvToJson();
-
+async function productsFromFileToDB(inputStream) {
   try {
-    await promisifiedPipeline(inputStream, gunzip, csvToJson, outputStream);
+    const gunzip = createGunzip();
+    const csvStr = csvToObjectStream();
+    await promisifiedPipeline(inputStream, gunzip, csvStr);
   } catch (error) {
-    console.log('csv pipeline failed: ', error);
+    console.log('pipeline failed: ', error);
   }
 }
 
-async function jsonOptimization(data, res) {
-  const filePath = path.join(process.env.UPLOADS, data.filename);
-
-  if (!fs.existsSync(filePath)) {
-    res.status(422).send('incorrect filename');
-    return;
-  }
-
-  const readStream = fs.createReadStream(filePath);
-  const buildUniqJsonStream = buildUniqJson();
-  const writeStream = fs.createWriteStream(path.join(process.env.OPTIMIZED, data.filename));
-
+async function createProductByParams(body, res) {
   try {
-    res.status(202).send('accepted');
-    await promisifiedPipeline(readStream, buildUniqJsonStream, writeStream);
-  } catch (error) {
-    console.log('streams error', error);
-  }
-}
-
-async function getFiles(res) {
-  const pathToUploads = process.env.UPLOADS;
-  const pathToOptomized = process.env.OPTIMIZED;
-
-  try {
-    const filesList = await getFilesInfo(pathToUploads);
-    const optFilesList = await getFilesInfo(pathToOptomized);
-
-    res.json(JSON.stringify({ uploads: filesList, optimized: optFilesList }));
+    const product = await createProduct(body);
+    if (!product) {
+      res.send('incorrect params').status(400);
+      return false;
+    }
+    res.json(product);
+    return true;
   } catch (error) {
     console.error(error);
-    res.status(500).send('We have a problem :(');
+    res.send('Oops..!').status(500);
   }
 }
 
-module.exports = { updateCsv, jsonOptimization, getFiles };
+async function getProductById({ id }, res) {
+  try {
+    if (!id || !typeof +id === 'number') {
+      res.send('incorrect request data').status(400);
+      return false;
+    }
+
+    const product = await getProduct(id);
+    if (!product) {
+      res.send('Product wasn`t found').status(404);
+      return false;
+    }
+
+    res.json(product);
+    return true;
+  } catch (error) {
+    console.error(error);
+    res.send('Oops..!').status(500);
+  }
+}
+
+async function updateProductByParams(body, res) {
+  try {
+    if (!body.id || !typeof +body.id === 'number') {
+      res.send('incorrect request data').status(400);
+      return false;
+    }
+
+    const product = await updateProduct(body);
+    if (!product) {
+      res.send('incorrect params').status(400);
+      return false;
+    }
+    res.json(product);
+    return true;
+  } catch (error) {
+    console.error(error);
+    res.send(`incorrect input data: ${error.message}`).status(400);
+  }
+}
+
+async function deleteProductById({ id }, res) {
+  try {
+    if (!id || !typeof +id === 'number') {
+      res.send('incorrect request data').status(400);
+      return false;
+    }
+    await deleteProduct(id);
+    res.send('product deleted');
+  } catch (error) {
+    console.error(error);
+    res.send('Oops..!').status(500);
+  }
+}
+
+module.exports = {
+  productsFromFileToDB,
+  getProductById,
+  createProductByParams,
+  updateProductByParams,
+  deleteProductById,
+};
