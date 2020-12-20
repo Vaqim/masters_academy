@@ -31,14 +31,14 @@ async function createProductByParams(body, res) {
   }
 }
 
-async function getProductById(query, res) {
+async function getProductById({ id }, res) {
   try {
-    if (!query.id || !typeof +query.id === 'number') {
+    if (!id || !typeof +id === 'number') {
       res.send('incorrect request data').status(400);
       return false;
     }
 
-    const product = await getProduct(query.id);
+    const product = await getProduct(id);
     if (!product) {
       res.send('product is not defined').status(404);
       return false;
