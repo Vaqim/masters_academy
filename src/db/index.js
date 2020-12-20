@@ -18,12 +18,11 @@ async function close() {
   client.end();
 }
 
-async function createProduct({ type, color, price, isPair, quantity = 0 }) {
+async function createProduct({ type, color, price, quantity = 0 }) {
   try {
     if (!type) throw new Error('ERROR: no product type defined');
     if (!color) throw new Error('ERROR: no product color defined');
     if (!price) throw new Error('ERROR: no product price defined');
-    if (isPair === null) throw new Error('ERROR: no product isPair option defined');
 
     const timestamp = new Date();
     let res = await client.query(
@@ -33,14 +32,15 @@ async function createProduct({ type, color, price, isPair, quantity = 0 }) {
 
     if (!res.rows[0])
       res = await client.query(
-        'INSERT INTO products(type, color, price, quantity, created_at, updated_at, deleted_at, is_pair) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-        [type, color, price, quantity, timestamp, timestamp, null, isPair],
+        'INSERT INTO products(type, color, price, quantity, created_at, updated_at, deleted_at) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        [type, color, price, quantity, timestamp, timestamp, null],
       );
 
     console.log(`DEBUG: new product created: ${JSON.stringify(res.rows[0])}`);
     return res.rows[0];
   } catch (err) {
     console.error(err.message || err);
+    return false;
   }
 }
 
@@ -88,7 +88,7 @@ async function updateProduct({ id, ...product }) {
     );
 
     console.log(`DEBUG: Proudct updated ${JSON.stringify(res.rows[0])}`);
-    return JSON.stringify(res.rows[0]);
+    return res.rows[0];
   } catch (error) {
     console.error(error.message || error);
     throw error;
