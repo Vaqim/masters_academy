@@ -117,6 +117,118 @@ async function getAllProducts() {
   }
 }
 
+// colors
+
+async function createColor(color) {
+  try {
+    if (!color) throw new Error('Bad input: color is not defined');
+
+    const res = await client.query('INSERT INTO colors(color) VALUES($1) RETURNING *', [color]);
+    console.log(`DEBUG: color ${color} has been created`);
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+async function getColorId(color) {
+  try {
+    if (!color) throw new Error('Bad input: color is not defined');
+    const res = await client.query('SELECT * FROM colors WHERE color = $1', [color]);
+
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+async function updateColor(id, color) {
+  try {
+    if (!id) throw new Error('Bad input: color id is not defined');
+    if (!color) throw new Error('Nothing to update');
+
+    const res = await client.query('UPDATE colors SET color = $1 WHERE id = $2 RETURNING *', [
+      color,
+      id,
+    ]);
+
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+async function deleteColor(id) {
+  try {
+    if (!id) throw new Error('Bad input: color id is not defined');
+
+    await client.query('DELETE FROM colors WHERE id = $1', [id]);
+    return true;
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+// types
+
+async function createType(type) {
+  try {
+    if (!type) throw new Error('Bad input: type is not defined');
+
+    const res = await client.query('INSERT INTO types(type) VALUES($1) RETURNING *', [type]);
+    console.log(`DEBUG: type ${type} has been created`);
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+async function getTypeId(type) {
+  try {
+    if (!type) throw new Error('Bad input: type is not defined');
+    const res = await client.query('SELECT * FROM types WHERE type = $1', [type]);
+
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+async function updateType(id, type) {
+  try {
+    if (!id) throw new Error('Bad input: type id is not defined');
+    if (!type) throw new Error('Nothing to update');
+
+    const res = await client.query('UPDATE types SET type = $1 WHERE id = $2 RETURNING *', [
+      type,
+      id,
+    ]);
+
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
+async function deleteType(id) {
+  try {
+    if (!id) throw new Error('Bad input: type id is not defined');
+
+    await client.query('DELETE FROM types WHERE id = $1', [id]);
+    return true;
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
 module.exports = {
   testConnection,
   close,
@@ -125,4 +237,12 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getAllProducts,
+  createColor,
+  getColorId,
+  updateColor,
+  deleteColor,
+  createType,
+  getTypeId,
+  updateType,
+  deleteType,
 };
