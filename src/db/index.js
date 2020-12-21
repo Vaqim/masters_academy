@@ -145,7 +145,9 @@ async function deleteProduct(id) {
 
 async function getAllProducts() {
   try {
-    const res = await client.query('SELECT * FROM products WHERE deleted_at IS NULL');
+    const res = await client.query(
+      'SELECT products.id, types.type, colors.color, products.price, products.quantity FROM products INNER JOIN types ON (products.type = types.id) INNER JOIN colors ON (products.color = colors.id) WHERE deleted_at IS NULL',
+    );
     return res.rows;
   } catch (error) {
     console.error(error.message || error);
