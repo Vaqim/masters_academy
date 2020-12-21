@@ -50,3 +50,5 @@ colors.delete(
     }
   }),
 );
+
+module.exports = colors;

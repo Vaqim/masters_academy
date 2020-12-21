@@ -50,3 +50,5 @@ types.delete(
     }
   }),
 );
+
+module.exports = types;
