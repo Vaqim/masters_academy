@@ -144,6 +144,18 @@ async function getColorId(color) {
   }
 }
 
+async function getColorById(id) {
+  try {
+    if (!id) throw new Error('Bad input: color id is not defined');
+    const res = await client.query('SELECT * FROM colors WHERE id = $1', [id]);
+
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
 async function updateColor(id, color) {
   try {
     if (!id) throw new Error('Bad input: color id is not defined');
@@ -200,6 +212,18 @@ async function getTypeId(type) {
   }
 }
 
+async function getTypeById(id) {
+  try {
+    if (!id) throw new Error('Bad input: type id is not defined');
+    const res = await client.query('SELECT * FROM types WHERE id = $1', [id]);
+
+    return res.rows[0];
+  } catch (err) {
+    console.error(err.message || err);
+    throw err;
+  }
+}
+
 async function updateType(id, type) {
   try {
     if (!id) throw new Error('Bad input: type id is not defined');
@@ -239,10 +263,12 @@ module.exports = {
   getAllProducts,
   createColor,
   getColorId,
+  getColorById,
   updateColor,
   deleteColor,
   createType,
   getTypeId,
+  getTypeById,
   updateType,
   deleteType,
 };
