@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "db:migration:create": "./node_modules/.bin/node-pg-migrate --m=./src/db/migrations create",
-    "db:migration:up": "DATABASE_URL=postgres://main:main@localhost:15432/main ./node_modules/.bin/node-pg-migrate up --m=./src/db/migrations",
-    "db:migration:down": "DATABASE_URL=postgres://main:main@localhost:15432/main ./node_modules/.bin/node-pg-migrate down --m=./src/db/migrations",
+    "db:migration:up": "./node_modules/.bin/node-pg-migrate up --m=./src/db/migrations",
+    "db:migration:down": "./node_modules/.bin/node-pg-migrate down --m=./src/db/migrations",
     "db:seeds": "node ./src/db/seeds/index.js"
   },
   "keywords": [],
