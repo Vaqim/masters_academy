@@ -41,7 +41,7 @@ async function getTypeId(type) {
   }
 }
 
-async function close() {
+function close() {
   console.log('closing pg wrapper');
   client.end();
 }
