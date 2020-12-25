@@ -3,45 +3,54 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
+  pgm.addExtension('uuid-ossp', {
+    ifNotExist: true,
+  });
+
   pgm.createTable('colors', {
     id: {
-      type: 'serial',
+      type: 'uuid',
       primaryKey: true,
+      default: pgm.func('uuid_generate_v4()'),
     },
-    color: {
+    name: {
       type: 'varchar(20)',
       notNull: true,
+      unique: true,
     },
   });
 
   pgm.createTable('types', {
     id: {
-      type: 'serial',
+      type: 'uuid',
       primaryKey: true,
+      default: pgm.func('uuid_generate_v4()'),
     },
-    type: {
+    name: {
       type: 'varchar(20)',
       notNull: true,
+      unique: true,
     },
   });
 
   pgm.createTable('products', {
     id: {
-      type: 'serial',
+      type: 'uuid',
       primaryKey: true,
+      default: pgm.func('uuid_generate_v4()'),
     },
-    type: {
-      type: 'integer',
+    type_id: {
+      type: 'uuid',
       references: 'types',
       notNull: true,
     },
-    color: {
-      type: 'integer',
+    color_id: {
+      type: 'uuid',
       references: 'colors',
       notNull: true,
     },
     price: {
-      type: 'numeric',
+      type: 'numeric(2)',
       notNull: true,
     },
     quantity: {
@@ -60,10 +69,18 @@ exports.up = (pgm) => {
       type: 'timestamptz',
     },
   });
+
+  pgm.addConstraint('products', 'uniq_product', { unique: ['type_id', 'color_id', 'price'] });
 };
 
 exports.down = (pgm) => {
+  pgm.dropConstraint('products', 'uniq_product', { ifExists: true, cascade: true });
+
   pgm.dropTable('products', { cascade: true });
   pgm.dropTable('types');
   pgm.dropTable('colors');
+
+  pgm.dropExtension('uuid-ossp', {
+    ifExist: true,
+  });
 };
