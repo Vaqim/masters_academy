@@ -18,6 +18,9 @@ exports.up = (pgm) => {
       notNull: true,
       unique: true,
     },
+    deleted_at: {
+      type: 'timestamptz',
+    },
   });
 
   pgm.createTable('types', {
@@ -30,6 +33,9 @@ exports.up = (pgm) => {
       type: 'varchar(20)',
       notNull: true,
       unique: true,
+    },
+    deleted_at: {
+      type: 'timestamptz',
     },
   });
 
