@@ -3,7 +3,7 @@ const { createColor, updateColor, deleteColor, getColorById } = require('../../d
 async function getColor({ id }, res) {
   try {
     if (!id) {
-      res.send('id is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
       return false;
     }
     const color = await getColorById(id);
@@ -19,7 +19,7 @@ async function getColor({ id }, res) {
 async function createColorByParam({ color }, res) {
   try {
     if (!color) {
-      res.send('color is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
     }
 
     const result = await createColor(color);
@@ -35,7 +35,7 @@ async function createColorByParam({ color }, res) {
 async function updateColorByParams({ id, color }, res) {
   try {
     if (!id) {
-      res.send('id is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
       return false;
     }
 
@@ -53,12 +53,12 @@ async function updateColorByParams({ id, color }, res) {
 async function deleteColorById({ id }, res) {
   try {
     if (!id) {
-      res.send('id is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
       return false;
     }
 
     await deleteColor(id);
-    res.send('color deleted!');
+    res.json({ success: 'color deleted!' });
     return true;
   } catch (err) {
     console.error(err.message || err);

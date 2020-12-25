@@ -3,7 +3,7 @@ const { createType, updateType, deleteType, getTypeById } = require('../../db');
 async function getType({ id }, res) {
   try {
     if (!id) {
-      res.send('id is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
       return false;
     }
     const type = await getTypeById(id);
@@ -19,7 +19,7 @@ async function getType({ id }, res) {
 async function createTypeByParam({ type }, res) {
   try {
     if (!type) {
-      res.send('color is not defined :(').status(400);
+      res.json({ error: 'color is not defined :(' }).status(400);
     }
 
     const result = await createType(type);
@@ -35,7 +35,7 @@ async function createTypeByParam({ type }, res) {
 async function updateTypeByParams({ id, type }, res) {
   try {
     if (!id) {
-      res.send('id is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
       return false;
     }
 
@@ -53,12 +53,12 @@ async function updateTypeByParams({ id, type }, res) {
 async function deleteTypeById({ id }, res) {
   try {
     if (!id) {
-      res.send('id is not defined :(').status(400);
+      res.json({ error: 'id is not defined :(' }).status(400);
       return false;
     }
 
     await deleteType(id);
-    res.send('color deleted!');
+    res.json({ success: 'type deleted!' });
     return true;
   } catch (err) {
     console.error(err.message || err);
