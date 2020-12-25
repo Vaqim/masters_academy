@@ -45,8 +45,9 @@ colors.delete(
   asyncHandler(async (req, res) => {
     try {
       colorsController.deleteColorById(req.query, res);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.log(error.message || error);
+      throw error;
     }
   }),
 );

@@ -45,8 +45,9 @@ types.delete(
   asyncHandler(async (req, res) => {
     try {
       typesController.deleteTypeById(req.query, res);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.log(error.message || error);
+      throw error;
     }
   }),
 );
