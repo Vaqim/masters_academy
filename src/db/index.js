@@ -43,20 +43,6 @@ async function getTypeId(type) {
   }
 }
 
-async function getTypeAndColorIds(color, type) {
-  try {
-    const res = await client.query(
-      'SELECT cls.cid, tps.tid FROM (SELECT colors.id cid, row_number() OVER() FROM colors WHERE name = $1) cls FULL OUTER JOIN (SELECT types.id tid, row_number() OVER() FROM types WHERE name = $2) tps USING(row_number)',
-      [color, type],
-    );
-
-    return [res.rows[0].cid, res.rows[0].tid];
-  } catch (err) {
-    console.error(err.message || err);
-    throw err;
-  }
-}
-
 function close() {
   console.log('closing pg wrapper');
   client.end();
@@ -65,17 +51,19 @@ function close() {
 async function createProduct({ type, color, price, quantity = 0 }) {
   try {
     if (!price) throw new Error('ERROR: no product price defined');
-
-    const [colorId, typeId] = await getTypeAndColorIds(color, type);
-
-    if (!colorId) throw new Error('ERROR: no product color defined');
-    if (!typeId) throw new Error('ERROR: no product type defined');
+    if (!color) throw new Error('ERROR: no product color defined');
+    if (!type) throw new Error('ERROR: no product type defined');
 
     const timestamp = new Date();
 
+    const typeIdQuery = '(SELECT id FROM types WHERE name = $1)';
+    const colorIdQuery = '(SELECT id FROM colors WHERE name = $2)';
+
     const res = await client.query(
-      'INSERT INTO products(type_id, color_id, price, quantity, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $5) ON CONFLICT ON CONSTRAINT uniq_product DO UPDATE SET quantity = products.quantity + $4, updated_at = $5 WHERE products.type_id = $1 AND products.color_id = $2 AND products.price = $3 RETURNING *',
-      [typeId, colorId, price, quantity, timestamp],
+      `INSERT INTO products(type_id, color_id, price, quantity, created_at, updated_at) VALUES(${typeIdQuery}, ${colorIdQuery}, $3, $4, $5, $5)
+       ON CONFLICT ON CONSTRAINT uniq_product 
+       DO UPDATE SET quantity = products.quantity + $4, updated_at = $5 WHERE products.type_id = ${typeIdQuery} AND products.color_id = ${colorIdQuery} AND products.price = $3 RETURNING *`,
+      [type, color, price, quantity, timestamp],
     );
 
     console.log(`DEBUG: new product created/updated: ${JSON.stringify(res.rows[0])}`);
@@ -110,32 +98,15 @@ async function updateProduct({ id, ...product }) {
     delete product.deleted_at;
     delete product.isPair;
 
-    switch (true) {
-      case Boolean(product.type) && Boolean(product.color):
-        [product.color_id, product.type_id] = await getTypeAndColorIds(product.color, product.type);
-
-        delete product.color;
-        delete product.type;
-        break;
-      case Boolean(product.color):
-        product.color_id = await getColorId(product.color);
-
-        delete product.color;
-        break;
-      case Boolean(product.type):
-        product.type_id = await getTypeId(product.type);
-
-        delete product.type;
-        break;
-      default:
-        break;
-    }
-
     const query = [];
     const values = [];
 
     Object.keys(product).forEach((k, i) => {
-      query.push(`${k} = $${i + 1}`);
+      if (k === 'color' || k === 'type') {
+        query.push(`${k}_id = (SELECT id FROM ${k}s WHERE name = $${i + 1})`);
+      } else {
+        query.push(`${k} = $${i + 1}`);
+      }
       values.push(product[k]);
     });
 
