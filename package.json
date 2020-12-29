@@ -4,7 +4,11 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "db:migration:create": "./node_modules/.bin/node-pg-migrate --m=./src/db/migrations create",
+    "db:migration:up": "./node_modules/.bin/node-pg-migrate up --m=./src/db/migrations",
+    "db:migration:down": "./node_modules/.bin/node-pg-migrate down --m=./src/db/migrations",
+    "db:seeds": "node ./src/db/seeds/index.js"
   },
   "keywords": [],
   "author": "Vaqim",
@@ -15,6 +19,7 @@
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "nanoid": "^3.1.18",
+    "node-pg-migrate": "^5.9.0",
     "pg": "^8.5.1"
   },
   "devDependencies": {
