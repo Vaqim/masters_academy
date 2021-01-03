@@ -1,12 +1,14 @@
-const { Pool } = require('pg');
+/* eslint-disable camelcase */
+const Knex = require('knex');
+
 const { db: dbConfig } = require('../config');
 
-const client = new Pool(dbConfig);
+const client = Knex(dbConfig);
 
 async function testConnection() {
   try {
     console.log('Hello from pg test connection!');
-    await client.query('SELECT NOW()');
+    await client.raw('SELECT NOW()');
   } catch (error) {
     console.error(error.message || error);
     throw error;
@@ -17,11 +19,11 @@ async function getColorId(color) {
   try {
     if (!color) throw new Error('Bad input: color is not defined');
 
-    const res = await client.query('SELECT id FROM colors WHERE name = $1', [color]);
+    const res = await client('colors').select('id').where('name', color);
 
-    if (!res.rows[0]) throw new Error('No color in base');
+    if (!res) throw new Error('No color in base');
 
-    return res.rows[0].id;
+    return res.id;
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -32,21 +34,21 @@ async function getTypeId(type) {
   try {
     if (!type) throw new Error('Bad input: type is not defined');
 
-    const res = await client.query('SELECT id FROM types WHERE name = $1', [type]);
+    const res = await client('types').select('id').where('name', type);
 
-    if (!res.rows[0]) throw new Error('No type in base');
+    if (!res) throw new Error('No type in base');
 
-    return res.rows[0].id;
+    return res.id;
   } catch (err) {
     console.error(err.message || err);
     throw err;
   }
 }
 
-function close() {
-  console.log('closing pg wrapper');
-  client.end();
-}
+// function close() {
+//   console.log('closing pg wrapper');
+//   client.end();
+// }
 
 async function createProduct({ type, color, price, quantity = 0 }) {
   try {
@@ -56,14 +58,32 @@ async function createProduct({ type, color, price, quantity = 0 }) {
 
     const timestamp = new Date();
 
-    const typeIdQuery = '(SELECT id FROM types WHERE name = $1)';
-    const colorIdQuery = '(SELECT id FROM colors WHERE name = $2)';
+    const type_id = client('types').select('id').where('name', type);
+    const color_id = client('colors').select('id').where('name', color);
 
-    const res = await client.query(
-      `INSERT INTO products(type_id, color_id, price, quantity, created_at, updated_at) VALUES(${typeIdQuery}, ${colorIdQuery}, $3, $4, $5, $5)
-       ON CONFLICT ON CONSTRAINT uniq_product 
-       DO UPDATE SET quantity = products.quantity + $4, updated_at = $5 WHERE products.type_id = ${typeIdQuery} AND products.color_id = ${colorIdQuery} AND products.price = $3 RETURNING *`,
-      [type, color, price, quantity, timestamp],
+    const insertQuery = client('products').insert({
+      type_id,
+      color_id,
+      price,
+      quantity,
+      created_at: timestamp,
+      updated_at: timestamp,
+    });
+
+    const updateQuery = client
+      .queryBuilder()
+      .update({
+        quantity: client.raw('products.quantity + ?', [quantity]),
+        updated_at: timestamp,
+      })
+      .where({
+        'products.type_id': type_id,
+        'products.color_id': color_id,
+        'products.price': price,
+      });
+
+    const res = await client.raw(
+      `${insertQuery} ON CONFLICT ON CONSTRAINT uniq_product DO ${updateQuery} RETURNING *`,
     );
 
     console.log(`DEBUG: new product created/updated: ${JSON.stringify(res.rows[0])}`);
@@ -77,12 +97,22 @@ async function createProduct({ type, color, price, quantity = 0 }) {
 async function getProduct(id) {
   try {
     if (!id) throw new Error('ERROR: No product id defined');
-    const res = await client.query(
-      'SELECT products.id, types.name, colors.name, products.price, products.quantity FROM products INNER JOIN types ON (products.type_id = types.id) INNER JOIN colors ON (products.color_id = colors.id) WHERE products.id = $1 AND deleted_at IS NULL',
-      [id],
-    );
 
-    return res.rows[0];
+    const res = await client('products')
+      .select({
+        id: 'products.id',
+        type: 'types.name',
+        color: 'colors.name',
+        price: 'products.price',
+        quantity: 'products.quantity',
+      })
+      .innerJoin('types', 'products.type_id', 'types.id')
+      .innerJoin('colors', 'products.color_id', 'colors.id')
+      .where('products.id', id)
+      .whereNull('products.deleted_at')
+      .returning('*');
+
+    return res[0];
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -133,8 +163,7 @@ async function updateProduct({ id, ...product }) {
 async function deleteProduct(id) {
   try {
     if (!id) throw new Error('ERROR: No product id defined');
-    // await client.query('DELETE FROM products WHERE id = $1', [id]); // hard delete
-    await client.query('UPDATE products SET deleted_at = $1 WHERE id = $2', [new Date(), id]);
+    await client('products').where('id', id).update({ deleted_at: new Date() });
     return true;
   } catch (error) {
     console.error(error.message || error);
@@ -144,10 +173,19 @@ async function deleteProduct(id) {
 
 async function getAllProducts() {
   try {
-    const res = await client.query(
-      'SELECT products.id, types.name, colors.name, products.price, products.quantity FROM products INNER JOIN types ON (products.type_id = types.id) INNER JOIN colors ON (products.color_id = colors.id) WHERE deleted_at IS NULL',
-    );
-    return res.rows;
+    const res = client
+      .select({
+        id: 'products.id',
+        type: 'types.name',
+        color: 'colors.name',
+        price: 'products.price',
+        quantity: 'products.quantity',
+      })
+      .from('products')
+      .innerJoin('types', 'products.type_id', 'types.id')
+      .innerJoin('colors', 'products.color_id', 'colors.id')
+      .returning('*');
+    return res;
   } catch (error) {
     console.error(error.message || error);
     throw error;
@@ -160,9 +198,10 @@ async function createColor(color) {
   try {
     if (!color) throw new Error('Bad input: color is not defined');
 
-    const res = await client.query('INSERT INTO colors(name) VALUES($1) RETURNING *', [color]);
+    const res = await client('colors').insert({ name: color }).returning('*');
+
     console.log(`DEBUG: color ${color} has been created`);
-    return res.rows[0];
+    return res[0];
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -172,11 +211,10 @@ async function createColor(color) {
 async function getColorById(id) {
   try {
     if (!id) throw new Error('Bad input: color id is not defined');
-    const res = await client.query('SELECT * FROM colors WHERE id = $1 AND deleted_at IS NULL', [
-      id,
-    ]);
 
-    return res.rows[0];
+    const res = await client('colors').select('*').where('id', id).whereNull('deleted_at');
+
+    return res[0];
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -188,12 +226,14 @@ async function updateColor(id, color) {
     if (!id) throw new Error('Bad input: color id is not defined');
     if (!color) throw new Error('Nothing to update');
 
-    const res = await client.query(
-      'UPDATE colors SET name = $1 WHERE id = $2 AND deleted_at IS NULL RETURNING *',
-      [color, id],
-    );
+    const res = await client('colors').update('name', color, '*').where('id', id);
 
-    return res.rows[0];
+    // const res = await client.query(
+    //   'UPDATE colors SET name = $1 WHERE id = $2 AND deleted_at IS NULL RETURNING *',
+    //   [color, id],
+    // );
+
+    return res[0];
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -204,8 +244,8 @@ async function deleteColor(id) {
   try {
     if (!id) throw new Error('Bad input: color id is not defined');
 
-    // await client.query('DELETE FROM colors WHERE id = $1', [id]);
-    await client.query('UPDATE colors SET deleted_at = $1 WHERE id = $2', [new Date(), id]);
+    // await client('colors').where('id', id).del();
+    await client('colors').update('deleted_at', new Date()).where('id', id);
 
     return true;
   } catch (err) {
@@ -220,9 +260,10 @@ async function createType(type) {
   try {
     if (!type) throw new Error('Bad input: type is not defined');
 
-    const res = await client.query('INSERT INTO types(name) VALUES($1) RETURNING *', [type]);
+    const res = await client('types').insert({ name: type }).returning('*');
+
     console.log(`DEBUG: type ${type} has been created`);
-    return res.rows[0];
+    return res[0];
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -232,11 +273,10 @@ async function createType(type) {
 async function getTypeById(id) {
   try {
     if (!id) throw new Error('Bad input: type id is not defined');
-    const res = await client.query('SELECT * FROM types WHERE id = $1 AND deleted_at IS NULL', [
-      id,
-    ]);
 
-    return res.rows[0];
+    const res = await client('types').select('*').where('id', id).whereNull('deleted_at');
+
+    return res[0];
   } catch (err) {
     console.error(err.message || err);
     throw err;
@@ -248,10 +288,7 @@ async function updateType(id, type) {
     if (!id) throw new Error('Bad input: type id is not defined');
     if (!type) throw new Error('Nothing to update');
 
-    const res = await client.query('UPDATE types SET name = $1 WHERE id = $2 RETURNING *', [
-      type,
-      id,
-    ]);
+    const res = await client('types').update('name', type, '*').where('id', id);
 
     return res.rows[0];
   } catch (err) {
@@ -264,8 +301,9 @@ async function deleteType(id) {
   try {
     if (!id) throw new Error('Bad input: type id is not defined');
 
-    // await client.query('DELETE FROM types WHERE id = $1', [id]);
-    await client.query('UPDATE types SET deleted_at = $1 WHERE id = $2', [new Date(), id]);
+    // await client('types').where('id', id).del();
+    await client('types').update('deleted_at', new Date()).where('id', id);
+
     return true;
   } catch (err) {
     console.error(err.message || err);
@@ -275,7 +313,7 @@ async function deleteType(id) {
 
 module.exports = {
   testConnection,
-  close,
+  // close,
   createProduct,
   getProduct,
   updateProduct,
