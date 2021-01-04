@@ -128,32 +128,19 @@ async function updateProduct({ id, ...product }) {
     delete product.deleted_at;
     delete product.isPair;
 
-    const query = [];
-    const values = [];
-
-    Object.keys(product).forEach((k, i) => {
+    Object.keys(product).forEach((k) => {
       if (k === 'color' || k === 'type') {
-        query.push(`${k}_id = (SELECT id FROM ${k}s WHERE name = $${i + 1})`);
-      } else {
-        query.push(`${k} = $${i + 1}`);
+        product[`${k}_id`] = client(`${k}s`).select('id').where('name', product[k]);
+        delete product[k];
       }
-      values.push(product[k]);
     });
 
-    if (!values.length) throw new Error('nothing to update');
+    const res = await client('products')
+      .update({ ...product, updated_at: new Date() }, '*')
+      .where('id', id);
 
-    values.push(new Date());
-    values.push(id);
-
-    const res = await client.query(
-      `UPDATE products SET ${query.join(',')}, updated_at = $${values.length - 1} WHERE id = $${
-        values.length
-      } RETURNING *`,
-      values,
-    );
-
-    console.log(`DEBUG: Proudct updated ${JSON.stringify(res.rows[0])}`);
-    return res.rows[0];
+    console.log(`DEBUG: Proudct updated ${JSON.stringify(res[0])}`);
+    return res[0];
   } catch (error) {
     console.error(error.message || error);
     throw error;
@@ -163,6 +150,7 @@ async function updateProduct({ id, ...product }) {
 async function deleteProduct(id) {
   try {
     if (!id) throw new Error('ERROR: No product id defined');
+    // await client('products').where('id', id).del();
     await client('products').where('id', id).update({ deleted_at: new Date() });
     return true;
   } catch (error) {
@@ -227,11 +215,6 @@ async function updateColor(id, color) {
     if (!color) throw new Error('Nothing to update');
 
     const res = await client('colors').update('name', color, '*').where('id', id);
-
-    // const res = await client.query(
-    //   'UPDATE colors SET name = $1 WHERE id = $2 AND deleted_at IS NULL RETURNING *',
-    //   [color, id],
-    // );
 
     return res[0];
   } catch (err) {
