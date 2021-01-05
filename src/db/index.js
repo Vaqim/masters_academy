@@ -56,7 +56,7 @@ async function createProduct({ type, color, price, quantity = 0 }) {
     if (!color) throw new Error('ERROR: no product color defined');
     if (!type) throw new Error('ERROR: no product type defined');
 
-    const timestamp = new Date();
+    // const timestamp = new Date();
 
     const type_id = client('types').select('id').where('name', type);
     const color_id = client('colors').select('id').where('name', color);
@@ -66,15 +66,12 @@ async function createProduct({ type, color, price, quantity = 0 }) {
       color_id,
       price,
       quantity,
-      created_at: timestamp,
-      updated_at: timestamp,
     });
 
     const updateQuery = client
       .queryBuilder()
       .update({
         quantity: client.raw('products.quantity + ?', [quantity]),
-        updated_at: timestamp,
       })
       .where({
         'products.type_id': type_id,
@@ -135,9 +132,7 @@ async function updateProduct({ id, ...product }) {
       }
     });
 
-    const res = await client('products')
-      .update({ ...product, updated_at: new Date() }, '*')
-      .where('id', id);
+    const res = await client('products').update(product, '*').where('id', id);
 
     console.log(`DEBUG: Proudct updated ${JSON.stringify(res[0])}`);
     return res[0];
