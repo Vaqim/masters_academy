@@ -1,8 +1,7 @@
 exports.seed = async (knex) => {
-  await knex('colors').del();
-  await knex('types').del();
+  await Promise.all([knex('colors').del(), knex('types').del()]);
 
-  await knex('colors').insert([
+  const createColors = knex('colors').insert([
     { name: 'red' },
     { name: 'black' },
     { name: 'lime' },
@@ -10,10 +9,12 @@ exports.seed = async (knex) => {
     { name: 'purple' },
   ]);
 
-  await knex('types').insert([
+  const createTypes = knex('types').insert([
     { name: 'gloves' },
     { name: 'socks' },
     { name: 'hat' },
     { name: 'jeans' },
   ]);
+
+  await Promise.all([createColors, createTypes]);
 };
