@@ -6,6 +6,11 @@ const config = {
   origin: process.env.ORIGIN || 'http://localhost:3000/',
   login: process.env.LOGIN || '',
   password: process.env.PASSWORD || '',
+  JWToken: {
+    accessSecret: process.env.ACCESS_TOKEN_SECRET || 'access_secret',
+    refreshSecret: process.env.REFRESH_TOKEN_SECRET || 'refresh_secret',
+    expiresIn: process.env.TOKEN_EXPIRES_IN || '30s',
+  },
   db: {
     client: 'postgres',
     connection: {
