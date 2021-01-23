@@ -2,7 +2,7 @@ exports.up = async (knex) => {
   await Promise.all([
     knex.schema.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'),
     knex.schema.raw(`
-      CREATE OR REPLACE FUNCTION updated_at_timastamp() RETURNS TRIGGER
+      CREATE OR REPLACE FUNCTION updated_at_timestamp() RETURNS TRIGGER
         LANGUAGE plpgsql
         AS
         $$
@@ -36,7 +36,7 @@ exports.up = async (knex) => {
   });
 
   await knex.schema.raw(`
-  CREATE TRIGGER updated_at_timastamp
+  CREATE TRIGGER updated_at_timestamp
   BEFORE UPDATE
   ON products
   FOR EACH ROW
