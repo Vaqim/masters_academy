@@ -40,7 +40,7 @@ exports.up = async (knex) => {
   BEFORE UPDATE
   ON products
   FOR EACH ROW
-  EXECUTE PROCEDURE updated_at_timastamp();
+  EXECUTE PROCEDURE updated_at_timestamp();
   `);
 };
 
@@ -50,7 +50,7 @@ exports.down = async (knex) => {
   await Promise.all([
     knex.schema.dropTable('types'),
     knex.schema.dropTable('colors'),
-    knex.schema.raw('DROP FUNCTION IF EXISTS updated_at_timastamp() CASCADE'),
+    knex.schema.raw('DROP FUNCTION IF EXISTS updated_at_timestamp() CASCADE'),
   ]);
 
   await knex.schema.raw('DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE');
