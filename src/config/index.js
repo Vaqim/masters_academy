@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv-expand')(require('dotenv').config());
 const fatal = require('../services/fatal');
 
 const config = {
@@ -25,6 +25,7 @@ const config = {
       max: 10,
     },
   },
+  dbUrl: process.env.DATABASE_URL,
 };
 
 module.exports = config;
