@@ -5,10 +5,11 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "db:migration:create": "./node_modules/.bin/node-pg-migrate --m=./src/db/migrations create",
-    "db:migration:up": "./node_modules/.bin/node-pg-migrate up --m=./src/db/migrations",
-    "db:migration:down": "./node_modules/.bin/node-pg-migrate down --m=./src/db/migrations",
-    "db:seeds": "node ./src/db/seeds/index.js"
+    "db:migration:create": "./node_modules/.bin/knex --knexfile=./src/db/knexfile.js migrate:make",
+    "db:migration:up": "./node_modules/.bin/knex --knexfile=./src/db/knexfile.js migrate:up",
+    "db:migration:down": "./node_modules/.bin/knex --knexfile=./src/db/knexfile.js migrate:down",
+    "db:seed:make": "./node_modules/.bin/knex --knexfile=./src/db/knexfile.js seed:make",
+    "db:seed:run": "./node_modules/.bin/knex --knexfile=./src/db/knexfile.js seed:run"
   },
   "keywords": [],
   "author": "Vaqim",
@@ -16,8 +17,11 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
+    "dotenv-expand": "^5.1.0",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.15",
     "nanoid": "^3.1.18",
     "node-pg-migrate": "^5.9.0",
     "pg": "^8.5.1"

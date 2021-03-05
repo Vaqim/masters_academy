@@ -7,6 +7,7 @@ const {
 } = require('./discounts');
 const { csvToObjectStream } = require('./products');
 const { isEmpty } = require('./utils');
+const { getAccessToken, getRefreshToken } = require('./authorization');
 
 module.exports = {
   discountCallback,
@@ -16,4 +17,6 @@ module.exports = {
   discountPromisify,
   csvToObjectStream,
   isEmpty,
+  getAccessToken,
+  getRefreshToken,
 };

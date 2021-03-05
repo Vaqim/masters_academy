@@ -68,7 +68,7 @@ async function updateProductByParams(body, res) {
     return true;
   } catch (error) {
     console.error(error);
-    res.send(`incorrect input data: ${error.message}`).status(400);
+    res.send(`incorrect input data`).status(400);
   }
 }
 

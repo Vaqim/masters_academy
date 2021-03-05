@@ -1,14 +1,17 @@
-const { login, password } = require('../../config');
+const jwt = require('jsonwebtoken');
+const { JWToken } = require('../../config');
 
 function authentication(req, res, next) {
-  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-  const [baseLogin, basePassword] = Buffer.from(b64auth, 'base64').toString().split(':');
-  if (login === baseLogin && password === basePassword) {
-    return next();
-  }
-  const err = new Error('Authorization required!');
-  err.name = 'AuthorizationError';
-  throw err;
+  const token = (req.headers.authorization || '').split(' ')[1] || '';
+
+  if (!token) throw new Error('Token required');
+
+  jwt.verify(token, JWToken.accessSecret, (err, user) => {
+    if (err) throw new Error('Token expired!');
+
+    req.user = user;
+    next();
+  });
 }
 
 module.exports = authentication;

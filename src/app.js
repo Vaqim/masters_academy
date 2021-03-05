@@ -1,7 +1,7 @@
 const { createServer } = require('http');
 const { port } = require('./config');
 const app = require('./server');
-const db = require('./db');
+const { testConnection } = require('./db');
 
 const server = createServer(app);
 
@@ -13,7 +13,6 @@ function start() {
 
 function stop(callback) {
   server.close((err) => {
-    db.close();
     if (err) {
       console.error(err, 'Failed to close server!');
       callback(err);
@@ -47,7 +46,7 @@ function enableGracefulExit() {
 
 async function boot() {
   enableGracefulExit();
-  await db.testConnection();
+  await testConnection();
   start();
 }
 
